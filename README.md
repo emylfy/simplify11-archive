@@ -57,12 +57,10 @@ iwr https://dub.sh/simplify11 | iex
 
 ## Sources
 
-- [**Win11Tweaks**](https://github.com/SysadminWorld/Win11Tweaks) - My old project, used as a starting point
-- [**QuickBoost**](https://github.com/SanGraphic/QuickBoost)
-- [**Windows 10 Latency Optimization**](https://github.com/denis-g/windows10-latency-optimization)
-- [**CoutX**](https://github.com/UnLovedCookie/CoutX)
-- [**SyncOS**](https://github.com/Snowfliger/SyncOS)
-- [**Win10Boost**](https://github.com/rahilpathan/Win10Boost)
-- [**Ancel's Performance Batch**](https://github.com/ancel1x/Ancels-Performance-Batch)
-
----
+[**Win11Tweaks**](https://github.com/SysadminWorld/Win11Tweaks) - My old project, used as a starting point
+[**QuickBoost**](https://github.com/SanGraphic/QuickBoost)
+[**Windows 10 Latency Optimization**](https://github.com/denis-g/windows10-latency-optimization)
+[**CoutX**](https://github.com/UnLovedCookie/CoutX)
+[**SyncOS**](https://github.com/Snowfliger/SyncOS)
+[**Win10Boost**](https://github.com/rahilpathan/Win10Boost)
+[**Ancel's Performance Batch**](https://github.com/ancel1x/Ancels-Performance-Batch)
