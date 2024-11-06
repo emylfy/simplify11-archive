@@ -344,7 +344,6 @@ set "key=%~1"
 set "valueName=%~2"
 set "value=%~3"
 set "type=%~4"
-
 if "%type%"=="" set "type=REG_SZ"
 reg.exe add "%key%" /v "%valueName%" /t "%type%" /d "%value%" /f
 goto :eof
