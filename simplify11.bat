@@ -15,9 +15,11 @@ echo.
 pause
 
 :backup
+
 set /p backupChoice="Would you like to create a system restore point before proceeding? (Y/N): "
 if /i "%backupChoice%"=="Y" (
     echo Creating system restore point...
+    reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t REG_DWORD /d "0" /f
     powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
     if %errorlevel%==0 (
         echo Restore point created successfully.
@@ -41,9 +43,10 @@ echo  │ [1] Apply Performance Tweaks                                       │
 echo  │ [2] Custom GPU and RAM Tweaks                                      │
 echo  │ [3] Free Up Space                                                  │
 echo  │ [4] Launch WinUtil - Install Programs and Tweaks                   │
-echo  │ [5] Exit                                                           │
+echo  │ [5] Open link to - Privacy.Sexy (creates personal batch in clicks) │
+echo  │ [6] Exit                                                           │
 echo  ──────────────────────────────────────────────────────────────────────
-choice /C 12345 /N /M "Select an option: "
+choice /C 123456 /N /M "> "
 goto option%errorlevel%
 
 :option1
@@ -63,6 +66,9 @@ call :launchWinUtil
 goto main
 
 :option5
+call :launchPrivacySexy
+
+:option6
 exit
 
 :applyPerformanceTweaks
@@ -186,7 +192,7 @@ echo [4] 16GB
 echo [5] 32GB
 echo [6] 64GB
 echo [7] Skip if Unsure
-choice /C 1234567 /N /M "Select an option: "
+choice /C 1234567 /N /M "> "
 if errorlevel 7 goto main
 call :setRAMSize %errorlevel%
 
@@ -218,7 +224,7 @@ echo [2] AMD
 echo.
 echo [3] Skip if Unsure
 echo.
-choice /C 123 /N /M "Select an option: "
+choice /C 123 /N /M "> "
 if errorlevel 3 goto main
 if errorlevel 2 goto amd
 if errorlevel 1 goto nvidia
@@ -328,9 +334,12 @@ cls
 powershell -Command "irm 'https://christitus.com/win' | iex"
 goto main
 
+:launchPrivacySexy
+cls
+start https://privacy.sexy/
+goto main
+
 :setReg
-:: Function to set registry values
-:: Usage: call :setReg <key> <valueName> <value> [type]
 set "key=%~1"
 set "valueName=%~2"
 set "value=%~3"
