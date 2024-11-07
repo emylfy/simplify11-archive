@@ -3,73 +3,106 @@ setlocal EnableDelayedExpansion
 net session >nul 2>&1 || (powershell start -verb runas '%~0' & exit)
 cls
 title Simplify11
+
+:: Catppuccin colors
+set "colorRosewater=[38;5;224m"
+set "colorFlamingo=[38;5;210m"
+set "colorPink=[38;5;212m"
+set "colorMauve=[38;5;141m"
+set "colorRed=[38;5;203m"
+set "colorMaroon=[38;5;167m"
+set "colorPeach=[38;5;209m"
+set "colorYellow=[38;5;229m"
+set "colorGreen=[38;5;120m"
+set "colorTeal=[38;5;116m"
+set "colorSky=[38;5;111m"
+set "colorSapphire=[38;5;69m"
+set "colorBlue=[38;5;75m"
+set "colorLavender=[38;5;183m"
+set "colorText=[38;5;250m"
+set "colorReset=[0m"
+
 echo.
 echo.
-echo   "Before using any of the options, please make a system restore point,
-echo   I do not take any responsibility if you break your system, lose data,
-echo   or have a performance decrease, thank you for understanding"
+echo %colorRosewater%   "Before using any of the options, please make a system restore point,%colorReset%
+echo %colorRosewater%   I do not take any responsibility if you break your system, lose data,%colorReset%
+echo %colorRosewater%   or have a performance decrease, thank you for understanding"%colorReset%
 echo.
-echo   I tried as hard as possible to make the script universal for everyone!
+echo %colorFlamingo%   I tried as hard as possible to make the script universal for everyone!%colorReset%
 echo.
 echo.
 pause
 
 :backup
 
-set /p backupChoice="Would you like to create a system restore point before proceeding? (Y/N): "
-if /i "%backupChoice%"=="Y" (
-    echo Creating system restore point...
+echo %colorText%Checking for existing 'Pre-Script Restore Point'...%colorReset%
+powershell -Command "Get-ComputerRestorePoint | Where-Object { $_.Description -eq 'Pre-Script Restore Point' }" > nul 2>&1
+if %errorlevel%==0 (
+    echo %colorYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%colorReset%
+    goto main
+)
+
+echo %colorText%Would you like to create a system restore point before proceeding?%colorReset%
+choice /C 12 /N /M "[1] Yes or [2] No : "
+if errorlevel 2 (
+    echo %colorYellow%Skipping restore point creation.%colorReset%
+) else if errorlevel 1 (
+    echo %colorGreen%Creating system restore point...%colorReset%
     reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t REG_DWORD /d "0" /f
     powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
     if %errorlevel%==0 (
-        echo Restore point created successfully.
+        echo %colorGreen%Restore point created successfully.%colorReset%
     ) else (
-        echo Failed to create restore point. Please check your system settings and try again.
+        echo %colorRed%Failed to create restore point. Please check your system settings and try again.%colorReset%
     )
-) else if /i "%backupChoice%"=="N" (
-    echo Skipping restore point creation.
 ) else (
-    echo Invalid choice. Please enter Y or N.
+    echo %colorRed%Invalid choice. Please enter 1 or 2.%colorReset%
     goto backup
 )
 
 :main
 cls
 echo.
-echo  ──────────────────────────────────────────────────────────────────────
-echo  │ Inspired by every "Win Tweaker", this script reveals a simpler way │
-echo  ──────────────────────────────────────────────────────────────────────
-echo  │ [1] Apply Performance Tweaks                                       │
-echo  │ [2] Custom GPU and RAM Tweaks                                      │
-echo  │ [3] Free Up Space                                                  │
-echo  │ [4] Launch WinUtil - Install Programs and Tweaks                   │
-echo  │ [5] Open link to - Privacy.Sexy (creates personal batch in clicks) │
-echo  │ [6] Exit                                                           │
-echo  ──────────────────────────────────────────────────────────────────────
+echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
+echo %colorMauve% │%colorMauve% Inspired by every "Win Tweaker", this script reveals a simpler way %colorMauve%│%colorReset%
+echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
+echo %colorMauve% │%colorText% [1] Apply Performance Tweaks                                       %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [2] Custom GPU and RAM Tweaks                                      %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [3] Free Up Space                                                  %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [4] Launch WinUtil - Install Programs and Tweaks                   %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [5] Open link to - Privacy.Sexy (creates personal batch in clicks) %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [6] Exit                                                           %colorMauve%│%colorReset%
+echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
 choice /C 123456 /N /M "> "
-goto option%errorlevel%
+goto %errorlevel%
 
-:option1
+:1
+cls
 call :applyPerformanceTweaks
 goto main
 
-:option2
+:2
+cls
 call :customGPUTweaks
 goto main
 
-:option3
+:3
+cls
 call :freeUpSpace
 goto main
 
-:option4
+:4
+cls
 call :launchWinUtil
 goto main
 
-:option5
+:5
+cls
 call :launchPrivacySexy
 
-:option6
-exit
+:6
+cls
+exitf
 
 :applyPerformanceTweaks
 :: Mouse & Keyboard Tweaks
@@ -331,12 +364,14 @@ goto main
 
 :launchWinUtil
 cls
-powershell -Command "irm 'https://christitus.com/win' | iex"
+start cmd /c powershell -Command "irm 'https://christitus.com/win' | iex"
 goto main
 
 :launchPrivacySexy
 cls
-start https://privacy.sexy/
+start "" "https://privacy.sexy/"
+echo Recommended to set a Standart option if you are not sure what to do
+pause
 goto main
 
 :setReg

@@ -6,7 +6,7 @@
 
 ### Launch Command: (PowerShell)
 
-```powershell
+```
 iwr https://dub.sh/simplify11 | iex
 ```
 
@@ -48,19 +48,24 @@ iwr https://dub.sh/simplify11 | iex
 
 ---
 
-## Recommendations After Installing Windows 🌟
+## Integrations 🌟
 
 - [**Winutil 🚀**](https://github.com/ChrisTitusTech/winutil): Install Programs, Tweaks, Fixes, and Updates
-- [**Privacy.sexy 🔒**](https://privacy.sexy): Open-source tool for enhancing privacy & security (recommended to select the 'Standard' script)
+- [**Privacy.sexy 🔒**](https://privacy.sexy): Open-source tool for enhancing privacy & security
 
 ---
 
 ## Sources
 
-[**Win11Tweaks**](https://github.com/SysadminWorld/Win11Tweaks) - My old project, used as a starting point
-[**QuickBoost**](https://github.com/SanGraphic/QuickBoost)
-[**Windows 10 Latency Optimization**](https://github.com/denis-g/windows10-latency-optimization)
-[**CoutX**](https://github.com/UnLovedCookie/CoutX)
-[**SyncOS**](https://github.com/Snowfliger/SyncOS)
-[**Win10Boost**](https://github.com/rahilpathan/Win10Boost)
-[**Ancel's Performance Batch**](https://github.com/ancel1x/Ancels-Performance-Batch)
+The following projects and resources have inspired and contributed to the development of Simplify11:
+
+- [**Win11Tweaks**](https://github.com/SysadminWorld/Win11Tweaks) - My first batch, used as a starting point
+- [**Windows 10 Latency Optimization**](https://github.com/denis-g/windows10-latency-optimization) - Has most accurate tweaks
+
+Additional insights and techniques were derived from these projects:
+
+- [**QuickBoost**](https://github.com/SanGraphic/QuickBoost)
+- [**CoutX**](https://github.com/UnLovedCookie/CoutX)
+- [**SyncOS**](https://github.com/Snowfliger/SyncOS)
+- [**Win10Boost**](https://github.com/rahilpathan/Win10Boost)
+- [**Ancel's Performance Batch**](https://github.com/ancel1x/Ancels-Performance-Batch)
