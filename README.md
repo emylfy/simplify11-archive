@@ -7,7 +7,7 @@
 ### Launch Command: (PowerShell)
 
 ```
-iwr https://dub.sh/simplify11 | iex
+iwr "https://dub.sh/simplify11" | iex
 ```
 
 ---

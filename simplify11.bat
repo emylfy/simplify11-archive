@@ -102,7 +102,7 @@ call :launchPrivacySexy
 
 :6
 cls
-exitf
+exit
 
 :applyPerformanceTweaks
 :: Mouse & Keyboard Tweaks
@@ -370,7 +370,7 @@ goto main
 :launchPrivacySexy
 cls
 start "" "https://privacy.sexy/"
-echo Recommended to set a Standart option if you are not sure what to do
+echo Recommended to set a Standard option if you are not sure what to do
 pause
 goto main
 
