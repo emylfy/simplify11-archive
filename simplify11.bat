@@ -36,28 +36,27 @@ pause
 :backup
 
 echo %colorText%Checking for existing 'Pre-Script Restore Point'...%colorReset%
-powershell -Command "Get-ComputerRestorePoint | Where-Object { $_.Description -eq 'Pre-Script Restore Point' }" > nul 2>&1
-if %errorlevel%==0 (
-    echo %colorYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%colorReset%
-    goto main
+for /f "usebackq delims=" %%i in (`powershell -Command "Get-ComputerRestorePoint | Where-Object { $_.Description -eq 'Pre-Script Restore Point' } | Measure-Object -Property Description | Select-Object -ExpandProperty Count"`) do (
+    if %%i gtr 0 (
+        echo %colorYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%colorReset%
+        goto main
+    )
 )
 
 echo %colorText%Would you like to create a system restore point before proceeding?%colorReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if errorlevel 2 (
     echo %colorYellow%Skipping restore point creation.%colorReset%
-) else if errorlevel 1 (
-    echo %colorGreen%Creating system restore point...%colorReset%
-    reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t REG_DWORD /d "0" /f
-    powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
-    if %errorlevel%==0 (
-        echo %colorGreen%Restore point created successfully.%colorReset%
-    ) else (
-        echo %colorRed%Failed to create restore point. Please check your system settings and try again.%colorReset%
-    )
+    goto main
+)
+
+echo %colorGreen%Creating system restore point...%colorReset%
+reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t REG_DWORD /d "0" /f
+powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
+if %errorlevel%==0 (
+    echo %colorGreen%Restore point created successfully.%colorReset%
 ) else (
-    echo %colorRed%Invalid choice. Please enter 1 or 2.%colorReset%
-    goto backup
+    echo %colorRed%Failed to create restore point. Please check your system settings and try again.%colorReset%
 )
 
 :main
@@ -70,10 +69,10 @@ echo %colorMauve% │%colorText% [1] Apply Performance Tweaks                   
 echo %colorMauve% │%colorText% [2] Custom GPU and RAM Tweaks                                      %colorMauve%│%colorReset%
 echo %colorMauve% │%colorText% [3] Free Up Space                                                  %colorMauve%│%colorReset%
 echo %colorMauve% │%colorText% [4] Launch WinUtil - Install Programs and Tweaks                   %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [5] Open link to - Privacy.Sexy (creates personal batch in clicks) %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [5] Privacy.Sexy - Create a personal batch in clicks               %colorMauve%│%colorReset%
 echo %colorMauve% │%colorText% [6] Exit                                                           %colorMauve%│%colorReset%
 echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
-choice /C 123456 /N /M "> "
+choice /C 123456 /N /M "%colorSapphire%>%colorReset%"
 goto %errorlevel%
 
 :1
@@ -106,15 +105,21 @@ exit
 
 :applyPerformanceTweaks
 :: Mouse & Keyboard Tweaks
+
+:: These settings disable Enhance Pointer Precision, which increases pointer speed with mouse speed
+:: This can be useful generally, but it causes cursor issues in games
+:: It's recommended to disable this for gaming
 call :setReg "HKCU\Control Panel\Mouse" "MouseSpeed" "0"
 call :setReg "HKCU\Control Panel\Mouse" "MouseThreshold1" "0"
 call :setReg "HKCU\Control Panel\Mouse" "MouseThreshold2" "0"
 
-:: Hardware Data Queue Size
+:: The MouseDataQueueSize and KeyboardDataQueueSize parameters set the number of events stored in the mouse and keyboard driver buffers
+:: A smaller value means faster processing of new information
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" "MouseDataQueueSize" "20" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" "KeyboardDataQueueSize" "20" REG_DWORD
 
 :: Disable StickyKeys
+:: These settings disable the annoying Sticky Keys feature when Shift is pressed repeatedly, and the delay in character input.
 call :setReg "HKCU\Control Panel\Accessibility" "StickyKeys" "506"
 call :setReg "HKCU\Control Panel\Accessibility\ToggleKeys" "Flags" "58"
 call :setReg "HKCU\Control Panel\Accessibility\Keyboard Response" "DelayBeforeAcceptance" "0"
@@ -123,40 +128,44 @@ call :setReg "HKCU\Control Panel\Accessibility\Keyboard Response" "AutoRepeatDel
 call :setReg "HKCU\Control Panel\Accessibility\Keyboard Response" "Flags" "122"
 
 :: GPU Tweaks
+:: The HwSchMode parameter optimizes hardware-level computation scheduling (Hardware Accelerated GPU Scheduling), reducing latency on lower-end GPUs.
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "2" REG_DWORD
 call :setReg "HKLM\SYSTEM\ControlSet001\Control\GraphicsDrivers\Scheduler" "EnablePreemption" "0" REG_DWORD
 
 :: Network Tweaks
-call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NetworkThrottlingIndex" "10" REG_DWORD
+
+:: By default, Windows uses network throttling to limit non-multimedia traffic to 10 packets per millisecond (about 100 Mb/s).
+:: This is to prioritize CPU access for multimedia applications, as processing network packets can be resource-intensive.
+:: However, it's recommended to disable this setting, especially with gigabit networks, to avoid unnecessary interference.
+call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NetworkThrottlingIndex" "ffffffff" REG_DWORD
 call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "SystemResponsiveness" "10" REG_DWORD
 call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NoLazyMode" "1" REG_DWORD
 
 :: CPU Tweaks
+
+:: LazyMode is a software flag that allows the system to skip some hardware events when CPU load is low.
+:: Disabling it can use more resources for event processing, so we set the timer to a minimum of 1ms (10000ms).
 call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "LazyModeTimeout" "10000" REG_DWORD
 
 :: Power Tweaks
+
+:: Power Throttling is a service that slows down background apps to save energy on laptops.
+:: In this case, it's unnecessary, so it's recommended to disable it.
 call :setReg "HKLM\SYSTEM\ControlSet001\Control\Power\PowerThrottling" "PowerThrottlingOff" "1" REG_DWORD
 call :setReg "HKLM\System\CurrentControlSet\Control\Power" "EnergyEstimationEnabled" "0" REG_DWORD
 call :setReg "HKLM\System\CurrentControlSet\Control\Power" "EventProcessorEnabled" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Power" "PlatformAoAcOverride" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Power" "CsEnabled" "0" REG_DWORD
 
-:: Disable USB Power Saving
-for /f "tokens=*" %%i in ('wmic PATH Win32_PnPEntity GET DeviceID ^| findstr "USB\VID_"') do (
-    call :setReg "HKLM\System\CurrentControlSet\Enum\%%i\Device Parameters" "EnhancedPowerManagementEnabled" "0" REG_DWORD
-    call :setReg "HKLM\System\CurrentControlSet\Enum\%%i\Device Parameters" "AllowIdleIrpInD3" "0" REG_DWORD
-    call :setReg "HKLM\System\CurrentControlSet\Enum\%%i\Device Parameters" "EnableSelectiveSuspend" "0" REG_DWORD
-    call :setReg "HKLM\System\CurrentControlSet\Enum\%%i\Device Parameters" "DeviceSelectiveSuspended" "0" REG_DWORD
-    call :setReg "HKLM\System\CurrentControlSet\Enum\%%i\Device Parameters" "SelectiveSuspendEnabled" "0" REG_DWORD
-    call :setReg "HKLM\System\CurrentControlSet\Enum\%%i\Device Parameters" "SelectiveSuspendOn" "0" REG_DWORD
-    call :setReg "HKLM\System\CurrentControlSet\Enum\%%i\Device Parameters" "D3ColdSupported" "0" REG_DWORD
-)
-
 :: Activate Hidden Ultimate Performance Power Plan
 powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
 powercfg -setactive eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
 
 :: Other Tweaks
+
+:: Specify priority for services (drivers) to handle interrupts first.
+:: Windows uses IRQL to determine interrupt priority. If an interrupt can be serviced, it starts execution.
+:: Lower priority tasks are queued. This ensures critical services are prioritized for interrupts.
 call :setReg "HKLM\SYSTEM\CurrentControlSet\services\DXGKrnl\Parameters" "ThreadPriority" "15" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\services\USBHUB3\Parameters" "ThreadPriority" "15" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\services\USBXHCI\Parameters" "ThreadPriority" "15" REG_DWORD
@@ -174,11 +183,6 @@ call :setReg "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize"
 :: Disable DistributeTimers
 reg.exe delete "HKLM\SYSTEM\ControlSet001\Control\Session Manager\kernel" /v "DistributeTimers" /f
 
-:: Applying BCD Tweaks for lower Input Delay
-bcdedit /set disabledynamictick yes
-bcdedit /deletevalue useplatformclock
-bcdedit /set useplatformtick yes
-
 :: Boot Optimization
 bcdedit /timeout 0
 bcdedit /set quietboot yes
@@ -195,6 +199,10 @@ call :setReg "HKCU\AppEvents\Schemes" "" "" /f
 call :setReg "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" "DelayedDesktopSwitchTimeout" "0" REG_DWORD
 
 :: Disable ApplicationPreLaunch & Prefetch
+
+:: The outdated Prefetcher and Superfetch services run in the background, analyzing loaded apps/libraries/services.
+:: They cache repeated data to disk and then to RAM, speeding up app launches.
+:: However, with an SSD, apps load quickly without this, so constant disk caching is unnecessary.
 powershell Disable-MMAgent -ApplicationPreLaunch
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" "EnablePrefetcher" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" "SfTracingState" "0" REG_DWORD
@@ -208,8 +216,12 @@ call :setReg "HKCU\Control Panel\Desktop" "MenuShowDelay" "0"
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control" "WaitToKillServiceTimeout" "2000"
 
 :: Memory Tweaks
+:: Enabling Large System Cache makes the OS use all RAM for caching system files,
+:: except 4MB reserved for disk cache, improving Windows responsiveness.
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" "LargeSystemCache" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" "DisablePagingCombining" "1" REG_DWORD
+
+:: Enabling this parameter keeps the system kernel and drivers in RAM instead of the page file, improving responsiveness.
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" "DisablePagingExecutive" "1" REG_DWORD
 
 goto :eof
@@ -357,8 +369,10 @@ dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
 wmic pagefileset delete
 
 :: Clear Windows Update Folder
+net stop wuauserv
 rd /s /q %systemdrive%\SoftwareDistribution
 md %systemdrive%\SoftwareDistribution
+net start wuauserv
 
 goto main
 
@@ -381,4 +395,4 @@ set "value=%~3"
 set "type=%~4"
 if "%type%"=="" set "type=REG_SZ"
 reg.exe add "%key%" /v "%valueName%" /t "%type%" /d "%value%" /f
-goto :eof
+exit /b

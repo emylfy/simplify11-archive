@@ -6,7 +6,7 @@
 
 ### Launch Command: (PowerShell)
 
-```
+```powershell
 iwr "https://dub.sh/simplify11" | iex
 ```
 
