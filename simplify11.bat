@@ -244,16 +244,36 @@ call :setRAMSize %errorlevel%
 :setRAMSize
 set "ramSize=%1"
 set "svcHostThreshold="
-if !ramSize! == 1 set "svcHostThreshold=68764420"
-if !ramSize! == 2 set "svcHostThreshold=103355478"
-if !ramSize! == 3 set "svcHostThreshold=137922056"
-if !ramSize! == 4 set "svcHostThreshold=376926742"
-if !ramSize! == 5 set "svcHostThreshold=861226034"
-if !ramSize! == 6 set "svcHostThreshold=1729136740"
+set "ramSizeText="
+
+if !ramSize! == 1 (
+    set "svcHostThreshold=68764420"
+    set "ramSizeText=4GB"
+)
+if !ramSize! == 2 (
+    set "svcHostThreshold=103355478"
+    set "ramSizeText=6GB"
+)
+if !ramSize! == 3 (
+    set "svcHostThreshold=137922056"
+    set "ramSizeText=8GB"
+)
+if !ramSize! == 4 (
+    set "svcHostThreshold=376926742"
+    set "ramSizeText=16GB"
+)
+if !ramSize! == 5 (
+    set "svcHostThreshold=861226034"
+    set "ramSizeText=32GB"
+)
+if !ramSize! == 6 (
+    set "svcHostThreshold=1729136740"
+    set "ramSizeText=64GB"
+)
 
 if defined svcHostThreshold (
     call :setReg "HKLM\SYSTEM\ControlSet001\Control" "SvcHostSplitThresholdInKB" "!svcHostThreshold!" REG_DWORD
-    echo Successfully applied tweak for !ramSize!GB RAM.
+    echo Successfully applied tweak for !ramSizeText! RAM.
 ) else (
     echo Invalid selection.
 )
