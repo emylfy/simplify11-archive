@@ -379,20 +379,37 @@ call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bf
 goto main
 
 :freeUpSpace
+
 :: Disable Reserved Storage
+echo Disable Reserved Storage
 dism /Online /Set-ReservedStorageState /State:Disabled
 
 :: Cleanup WinSxS
-dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
+echo Cleanup WinSxS
+@REM dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
 
 :: Remove Virtual Memory
+echo Remove Virtual Memory
 wmic pagefileset delete
 
 :: Clear Windows Update Folder
+echo Clear Windows Update Folder
 net stop wuauserv
-rd /s /q %systemdrive%\SoftwareDistribution
-md %systemdrive%\SoftwareDistribution
+rd /s /q %systemdrive%\Windows\SoftwareDistribution
+md %systemdrive%\Windows\SoftwareDistribution
 net start wuauserv
+
+:: Advanced disk cleaner
+echo.
+echo Would you like to run the advanced disk cleaner?
+choice /C 12 /N /M "[1] Yes or [2] No : "
+if errorlevel 2 (
+    echo Skipping advanced disk cleaner.
+    goto main
+)
+
+echo Running advanced disk cleaner...
+cleanmgr /sagerun:65535
 
 goto main
 
