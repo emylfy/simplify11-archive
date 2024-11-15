@@ -61,6 +61,7 @@ The following projects and resources have inspired and contributed to the develo
 
 - [**Win11Tweaks**](https://github.com/SysadminWorld/Win11Tweaks) - My first batch, used as a starting point
 - [**Windows 10 Latency Optimization**](https://github.com/denis-g/windows10-latency-optimization) - Has most accurate tweaks
+- [**Verified Tweaks**](https://github.com/AlchemyTweaks/Verified-Tweaks) - Tested and verified tweaks
 
 Additional insights and techniques were derived from these projects:
 

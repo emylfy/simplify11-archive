@@ -173,7 +173,8 @@ call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" "Threa
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" "ThreadPriority" "31" REG_DWORD
 
 :: Set Priority For Programs Instead Of Background Services
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "00000026" REG_DWORD
+:: source - https://www.youtube.com/watch?v=bqDMG1ZS-Yw&t=13s
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "0x00000024" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "IRQ8Priority" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "IRQ16Priority" "2" REG_DWORD
 
@@ -225,19 +226,38 @@ call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Manag
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" "DisablePagingExecutive" "1" REG_DWORD
 
 goto :eof
+:: DirectX Tweaks
+:: source - https://www.youtube.com/watch?v=itTcqcJxtbo&list=PLoFF46PsQQrMltkqYqbW4wnl0u03jy7am&index=2&t=2s
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "CreateGdiPrimaryOnSlaveGPU" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DriverSupportsCddDwmInterop" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCddSyncDxAccess" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCddSyncGPUAccess" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCddWaitForVerticalBlankEvent" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCreateSwapChain" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkFreeGpuVirtualAddress" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkOpenSwapChain" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkShareSwapChainObject" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkWaitForVerticalBlankEvent" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkWaitForVerticalBlankEvent2" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "SwapChainBackBuffer" "1" "REG_DWORD"
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "TdrResetFromTimeoutAsync" "1" "REG_DWORD"
+
+:: Serialize Timer Expiration mechanism, officially documented in Windows Internals 7th Edition Part 2
+:: sourcehttps://youtu.be/wil-09_5H0M?si=Fr6-tz2tuzjsIfTj
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" "SerializeTimerExpiration" "1" "REG_DWORD"
 
 :customGPUTweaks
 cls
-echo What size of RAM do you have?
+echo %colorText%What size of RAM do you have?%colorReset%
 echo.
-echo [1] 4GB
-echo [2] 6GB
-echo [3] 8GB
-echo [4] 16GB
-echo [5] 32GB
-echo [6] 64GB
-echo [7] Skip if Unsure
-choice /C 1234567 /N /M "> "
+echo %colorText%[1] 4GB%colorReset%
+echo %colorText%[2] 6GB%colorReset%
+echo %colorText%[3] 8GB%colorReset%
+echo %colorText%[4] 16GB%colorReset%
+echo %colorText%[5] 32GB%colorReset%
+echo %colorText%[6] 64GB%colorReset%
+echo %colorText%[7] Skip if Unsure%colorReset%
+choice /C 1234567 /N /M "%colorSapphire%>%colorReset%"
 if errorlevel 7 goto main
 call :setRAMSize %errorlevel%
 
@@ -273,29 +293,38 @@ if !ramSize! == 6 (
 
 if defined svcHostThreshold (
     call :setReg "HKLM\SYSTEM\ControlSet001\Control" "SvcHostSplitThresholdInKB" "!svcHostThreshold!" REG_DWORD
-    echo Successfully applied tweak for !ramSizeText! RAM.
+    echo %colorGreen%Successfully applied tweak for !ramSizeText! RAM.%colorReset%
 ) else (
-    echo Invalid selection.
+    echo %colorRed%Invalid selection.%colorReset%
 )
 pause
 goto next
 
 :next
 cls
-echo What kind of video card do you have?
+echo %colorText%What kind of video card do you have?%colorReset%
 echo.
-echo [1] NVIDIA
-echo [2] AMD
+echo %colorText%[1] NVIDIA%colorReset%
+echo %colorText%[2] AMD%colorReset%
 echo.
-echo [3] Skip if Unsure
+echo %colorText%[3] Skip if Unsure%colorReset%
 echo.
-choice /C 123 /N /M "> "
+choice /C 123 /N /M "%colorSapphire%>%colorReset%"
 if errorlevel 3 goto main
 if errorlevel 2 goto amd
 if errorlevel 1 goto nvidia
 
 :nvidia
 :: NVIDIA GPU Tweaks
+
+for /f %%i in ('wmic path Win32_VideoController get PNPDeviceID^| findstr /L "PCI\VEN_"') do (
+    for /f "tokens=3" %%a in ('reg query "HKLM\SYSTEM\ControlSet001\Enum\%%i" /v "Driver"') do (
+        for /f %%j in ('echo %%a ^| findstr "{"') do (
+            call :setReg "HKLM\System\ControlSet001\Control\Class\%%j" "DisableDynamicPstate" "1" "REG_DWORD"
+        )
+    )
+)
+
 call :setReg "HKCU\SOFTWARE\NVIDIA Corporation\Global\NVTweak\Devices\509901423-0\Color" "NvCplUseColorCorrection" "0" REG_DWORD
 call :setReg "HKLM\SOFTWARE\NVIDIA Corporation\Global\FTS" "EnableRID44231" "0" REG_DWORD
 call :setReg "HKLM\SOFTWARE\NVIDIA Corporation\Global\FTS" "EnableRID64640" "0" REG_DWORD
@@ -344,16 +373,29 @@ call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bf
 goto main
 
 :amd
-:: AMD GPU Tweaks
+:: source - https://www.youtube.com/watch?v=nuUV2RoPOWc&t=160s
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowRSOverlay" "false" REG_SZ
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowSkins" "false" REG_SZ
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowSnapshot" "0" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowSubscription" "0" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AutoColorDepthReduction_NA" "0" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRMaxNoSnoopLatencyValue" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRMaxSnoopLatencyValue" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRNoSnoopL0Latency" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRNoSnoopL1Latency" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRSnoopL0Latency" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRSnoopL1Latency" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalAllowDPrefSwitchingForGLSync" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalAllowDirectMemoryAccessTrig" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalNBLatencyForUnderFlow" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalUrgentLatencyNs" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableBlockWrite" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableDMACopy" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableDrmdmaPowerGating" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableEarlySamuInit" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableFBCForFullScreenApp" "0" REG_SZ
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableFBCSupport" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisablePowerGating" "0" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisablePowerGating" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableSAMUPowerGating" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableUVDPowerGatingDynamic" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableVCEPowerGating" "1" REG_DWORD
@@ -365,51 +407,59 @@ call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bf
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_EnableComputePreemption" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_FRTEnabled" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_MaxUVDSessions" "32" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_RpmComputeLatency" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRMaxNoSnoopLatency" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRNoSnoopL1Latency" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRSnoopL0Latency" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRSnoopL1Latency" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_ActivityTarget" "30" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_AllGraphicLevel_DownHyst" "20" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_AllGraphicLevel_UpHyst" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_GPUPowerDownEnabled" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_DGBMMMaxTransitionLatencyUvd" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_DGBPMMaxTransitionLatencyGfx" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_GPUPowerDownEnabled" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_MCLKStutterModeThreshold" "4096" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_ODNFeatureEnable" "1" REG_DWORD
+call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_RTPMComputeF1Latency" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_SclkDeepSleepDisable" "1" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_ThermalAutoThrottlingEnable" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "StutterMode" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "TVEnableOverscan" "0" REG_DWORD
 call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "WmAgpMaxIdleClk" "32" REG_DWORD
+
 goto main
 
 :freeUpSpace
 
 :: Disable Reserved Storage
-echo Disable Reserved Storage
+echo %colorText%Disabling Reserved Storage...%colorReset%
 dism /Online /Set-ReservedStorageState /State:Disabled
 
 :: Cleanup WinSxS
-echo Cleanup WinSxS
-@REM dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
+echo %colorText%Cleaning up WinSxS...%colorReset%
+dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
 
 :: Remove Virtual Memory
-echo Remove Virtual Memory
-wmic pagefileset delete
+echo.
+echo %colorText%Would you like to remove Virtual Memory (pagefile.sys)?%colorReset%
+choice /C 12 /N /M "[1] Yes or [2] No : "
+if not errorlevel 1 (
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name 'PagingFiles' -Value ''
+)
 
 :: Clear Windows Update Folder
-echo Clear Windows Update Folder
+echo %colorText%Clearing Windows Update Folder...%colorReset%
 net stop wuauserv
 rd /s /q %systemdrive%\Windows\SoftwareDistribution
 md %systemdrive%\Windows\SoftwareDistribution
-net start wuauserv
 
 :: Advanced disk cleaner
 echo.
-echo Would you like to run the advanced disk cleaner?
+echo %colorText%Would you like to run the advanced disk cleaner?%colorReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
-if errorlevel 2 (
-    echo Skipping advanced disk cleaner.
-    goto main
+if not errorlevel 1 (
+    echo %colorText%Running advanced disk cleaner...%colorReset%
 )
-
-echo Running advanced disk cleaner...
-cleanmgr /sagerun:65535
 
 goto main
 
@@ -421,7 +471,8 @@ goto main
 :launchPrivacySexy
 cls
 start "" "https://privacy.sexy/"
-echo Recommended to set a Standard option if you are not sure what to do
+echo %colorText%Recommended to set a Standard option if you are not sure what to do%colorReset%
+echo %colorText%and also dont forget to download revert version for your selected tweaks if anything can go wrong%colorReset%
 pause
 goto main
 
@@ -432,4 +483,3 @@ set "value=%~3"
 set "type=%~4"
 if "%type%"=="" set "type=REG_SZ"
 reg.exe add "%key%" /v "%valueName%" /t "%type%" /d "%value%" /f
-exit /b
