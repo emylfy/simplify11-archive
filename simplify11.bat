@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 net session >nul 2>&1 || (powershell start -verb runas '%~0' & exit)
-cls
+set "dw=REG_DWORD"
 title Simplify11
 
 :: Catppuccin colors
@@ -22,6 +22,7 @@ set "colorLavender=[38;5;183m"
 set "colorText=[38;5;250m"
 set "colorReset=[0m"
 
+cls
 echo.
 echo.
 echo %colorRosewater%   "Before using any of the options, please make a system restore point,%colorReset%
@@ -31,33 +32,7 @@ echo.
 echo %colorFlamingo%   I tried as hard as possible to make the script universal for everyone!%colorReset%
 echo.
 echo.
-pause
-
-:backup
-
-echo %colorText%Checking for existing 'Pre-Script Restore Point'...%colorReset%
-for /f "usebackq delims=" %%i in (`powershell -Command "Get-ComputerRestorePoint | Where-Object { $_.Description -eq 'Pre-Script Restore Point' } | Measure-Object -Property Description | Select-Object -ExpandProperty Count"`) do (
-    if %%i gtr 0 (
-        echo %colorYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%colorReset%
-        goto main
-    )
-)
-
-echo %colorText%Would you like to create a system restore point before proceeding?%colorReset%
-choice /C 12 /N /M "[1] Yes or [2] No : "
-if errorlevel 2 (
-    echo %colorYellow%Skipping restore point creation.%colorReset%
-    goto main
-)
-
-echo %colorGreen%Creating system restore point...%colorReset%
-reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t REG_DWORD /d "0" /f
-powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
-if %errorlevel%==0 (
-    echo %colorGreen%Restore point created successfully.%colorReset%
-) else (
-    echo %colorRed%Failed to create restore point. Please check your system settings and try again.%colorReset%
-)
+set /p=%colorText%Press any key to continue...%colorReset%
 
 :main
 cls
@@ -66,123 +41,125 @@ echo %colorMauve% ────────────────────�
 echo %colorMauve% │%colorMauve% Inspired by every "Win Tweaker", this script reveals a simpler way %colorMauve%│%colorReset%
 echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
 echo %colorMauve% │%colorText% [1] Apply Performance Tweaks                                       %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [2] Custom GPU and RAM Tweaks                                      %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [3] Free Up Space                                                  %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [4] Launch WinUtil - Install Programs and Tweaks                   %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [5] Privacy.Sexy - Create a personal batch in clicks               %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [6] Exit                                                           %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [2] Free Up Space                                                  %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [3] Launch WinUtil - Install Programs and Tweaks                   %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [4] Privacy.Sexy - Create a personal batch in clicks               %colorMauve%│%colorReset%
+echo %colorMauve% │%colorText% [5] Exit                                                           %colorMauve%│%colorReset%
 echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
 choice /C 123456 /N /M "%colorSapphire%>%colorReset%"
 goto %errorlevel%
 
 :1
 cls
-call :applyPerformanceTweaks
-goto main
+call :restoreSuggestion
 
 :2
 cls
-call :customGPUTweaks
-goto main
+call :freeUpSpace
 
 :3
 cls
-call :freeUpSpace
-goto main
+call :launchWinUtil
 
 :4
 cls
-call :launchWinUtil
-goto main
+call :launchPrivacySexy
 
 :5
 cls
-call :launchPrivacySexy
-
-:6
-cls
 exit
 
-:applyPerformanceTweaks
+:restoreSuggestion
+echo %colorText%Checking for existing 'Pre-Script Restore Point'...%colorReset%
+for /f "usebackq delims=" %%i in (`powershell -Command "Get-ComputerRestorePoint | Where-Object { $_.Description -eq 'Pre-Script Restore Point' } | Measure-Object -Property Description | Select-Object -ExpandProperty Count"`) do (
+    if %%i gtr 0 (
+        echo %colorYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%colorReset%
+        goto applyTweaks
+    )
+)
+
+echo %colorText%Would you like to create a system restore point before proceeding?%colorReset%
+choice /C 12 /N /M "[1] Yes or [2] No : "
+if %errorlevel%==2 goto applyTweaks
+
+echo %colorText%Creating system restore point...%colorReset%
+reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t %dw% /d "0" /f
+powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
+if %errorlevel%==0 (
+    echo %colorText%Restore point created successfully.%colorReset%
+) else (
+    echo %colorRed%Failed to create restore point. Please check your system settings and try again.%colorReset%
+)
+
+:applyTweaks
+
+set "pMouse=HKCU\Control Panel\Mouse"
+set "pMouclass=HKLM\SYSTEM\CurrentControlSet\Services\mouclass\Parameters"
+set "pKbdclass=HKLM\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters"
+set "pAccessibility=HKCU\Control Panel\Accessibility"
+set "pGraphicsDrivers=HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"
+set "pMultimedia=HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
+set "pPower=HKLM\SYSTEM\CurrentControlSet\Control\Power"
+set "pMemoryManagement=HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
+set "pDesktop=HKCU\Control Panel\Desktop"
+set "pDXGKrnl=HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl"
+set "pPriorityControl=HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl"
+set "pNvlddmkm=HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm"
+set "pFTS=HKLM\SOFTWARE\NVIDIA Corporation\Global\FTS"
+set "pClass=HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
+
+cls
+
 :: Mouse & Keyboard Tweaks
-
-:: These settings disable Enhance Pointer Precision, which increases pointer speed with mouse speed
-:: This can be useful generally, but it causes cursor issues in games
-:: It's recommended to disable this for gaming
-call :setReg "HKCU\Control Panel\Mouse" "MouseSpeed" "0"
-call :setReg "HKCU\Control Panel\Mouse" "MouseThreshold1" "0"
-call :setReg "HKCU\Control Panel\Mouse" "MouseThreshold2" "0"
-
-:: The MouseDataQueueSize and KeyboardDataQueueSize parameters set the number of events stored in the mouse and keyboard driver buffers
-:: A smaller value means faster processing of new information
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" "MouseDataQueueSize" "20" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" "KeyboardDataQueueSize" "20" REG_DWORD
+call :reg "%pMouse%" "MouseSpeed" "0"
+call :reg "%pMouse%" "MouseThreshold1" "0"
+call :reg "%pMouse%" "MouseThreshold2" "0"
+call :reg "%pMouclass%" "MouseDataQueueSize" "20" %dw%
+call :reg "%pKbdclass%" "KeyboardDataQueueSize" "20" %dw%
 
 :: Disable StickyKeys
-:: These settings disable the annoying Sticky Keys feature when Shift is pressed repeatedly, and the delay in character input.
-call :setReg "HKCU\Control Panel\Accessibility" "StickyKeys" "506"
-call :setReg "HKCU\Control Panel\Accessibility\ToggleKeys" "Flags" "58"
-call :setReg "HKCU\Control Panel\Accessibility\Keyboard Response" "DelayBeforeAcceptance" "0"
-call :setReg "HKCU\Control Panel\Accessibility\Keyboard Response" "AutoRepeatRate" "0"
-call :setReg "HKCU\Control Panel\Accessibility\Keyboard Response" "AutoRepeatDelay" "0"
-call :setReg "HKCU\Control Panel\Accessibility\Keyboard Response" "Flags" "122"
+call :reg "%pAccessibility%" "StickyKeys" "506"
+call :reg "%pAccessibility%\ToggleKeys" "Flags" "58"
+call :reg "%pAccessibility%\Keyboard Response" "DelayBeforeAcceptance" "0"
+call :reg "%pAccessibility%\Keyboard Response" "AutoRepeatRate" "0"
+call :reg "%pAccessibility%\Keyboard Response" "AutoRepeatDelay" "0"
+call :reg "%pAccessibility%\Keyboard Response" "Flags" "122"
 
 :: GPU Tweaks
-:: The HwSchMode parameter optimizes hardware-level computation scheduling (Hardware Accelerated GPU Scheduling), reducing latency on lower-end GPUs.
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "HwSchMode" "2" REG_DWORD
-call :setReg "HKLM\SYSTEM\ControlSet001\Control\GraphicsDrivers\Scheduler" "EnablePreemption" "0" REG_DWORD
+call :reg "%pGraphicsDrivers%" "HwSchMode" "2" %dw%
+call :reg "HKLM\SYSTEM\ControlSet001\Control\GraphicsDrivers\Scheduler" "EnablePreemption" "0" %dw%
 
 :: Network Tweaks
-
-:: By default, Windows uses network throttling to limit non-multimedia traffic to 10 packets per millisecond (about 100 Mb/s).
-:: This is to prioritize CPU access for multimedia applications, as processing network packets can be resource-intensive.
-:: However, it's recommended to disable this setting, especially with gigabit networks, to avoid unnecessary interference.
-call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NetworkThrottlingIndex" "ffffffff" REG_DWORD
-call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "SystemResponsiveness" "10" REG_DWORD
-call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NoLazyMode" "1" REG_DWORD
+reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "NetworkThrottlingIndex" /t REG_DWORD /d 0xffffffff /f
+call :reg "%pMultimedia%" "SystemResponsiveness" "10" %dw%
+call :reg "%pMultimedia%" "NoLazyMode" "1" %dw%
 
 :: CPU Tweaks
-
-:: LazyMode is a software flag that allows the system to skip some hardware events when CPU load is low.
-:: Disabling it can use more resources for event processing, so we set the timer to a minimum of 1ms (10000ms).
-call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "LazyModeTimeout" "10000" REG_DWORD
+call :reg "%pMultimedia%" "LazyModeTimeout" "10000" %dw%
 
 :: Power Tweaks
-
-:: Power Throttling is a service that slows down background apps to save energy on laptops.
-:: In this case, it's unnecessary, so it's recommended to disable it.
-call :setReg "HKLM\SYSTEM\ControlSet001\Control\Power\PowerThrottling" "PowerThrottlingOff" "1" REG_DWORD
-call :setReg "HKLM\System\CurrentControlSet\Control\Power" "EnergyEstimationEnabled" "0" REG_DWORD
-call :setReg "HKLM\System\CurrentControlSet\Control\Power" "EventProcessorEnabled" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Power" "PlatformAoAcOverride" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Power" "CsEnabled" "0" REG_DWORD
+call :reg "%pPower%" "PowerThrottlingOff" "1" %dw%
+call :reg "%pPower%" "EnergyEstimationEnabled" "0" %dw%
+call :reg "%pPower%" "EventProcessorEnabled" "0" %dw%
+call :reg "%pPower%" "PlatformAoAcOverride" "0" %dw%
+call :reg "%pPower%" "CsEnabled" "0" %dw%
 
 :: Activate Hidden Ultimate Performance Power Plan
 powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
 powercfg -setactive eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
 
 :: Other Tweaks
+call :reg "%pDXGKrnl%\Parameters" "ThreadPriority" "15" %dw%
+call :reg "HKLM\SYSTEM\CurrentControlSet\services\USBHUB3\Parameters" "ThreadPriority" "15" %dw%
+call :reg "HKLM\SYSTEM\CurrentControlSet\services\USBXHCI\Parameters" "ThreadPriority" "15" %dw%
+call :reg "%pMouclass%" "ThreadPriority" "31" %dw%
+call :reg "%pKbdclass%" "ThreadPriority" "31" %dw%
 
-:: Specify priority for services (drivers) to handle interrupts first.
-:: Windows uses IRQL to determine interrupt priority. If an interrupt can be serviced, it starts execution.
-:: Lower priority tasks are queued. This ensures critical services are prioritized for interrupts.
-call :setReg "HKLM\SYSTEM\CurrentControlSet\services\DXGKrnl\Parameters" "ThreadPriority" "15" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\services\USBHUB3\Parameters" "ThreadPriority" "15" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\services\USBXHCI\Parameters" "ThreadPriority" "15" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" "ThreadPriority" "31" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" "ThreadPriority" "31" REG_DWORD
+reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v "Win32PrioritySeparation" /t REG_DWORD /d 0x00000024 /f
+call :reg "%pPriorityControl%" "IRQ8Priority" "1" %dw%
+call :reg "%pPriorityControl%" "IRQ16Priority" "2" %dw%
 
-:: Set Priority For Programs Instead Of Background Services
-:: source - https://www.youtube.com/watch?v=bqDMG1ZS-Yw&t=13s
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "Win32PrioritySeparation" "0x00000024" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "IRQ8Priority" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" "IRQ16Priority" "2" REG_DWORD
-
-:: Boot System & Software without limits
-call :setReg "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize" "Startupdelayinmsec" "0" REG_DWORD
-
-:: Disable DistributeTimers
-reg.exe delete "HKLM\SYSTEM\ControlSet001\Control\Session Manager\kernel" /v "DistributeTimers" /f
+call :reg "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize" "Startupdelayinmsec" "0" %dw%
 
 :: Boot Optimization
 bcdedit /timeout 0
@@ -190,243 +167,208 @@ bcdedit /set quietboot yes
 bcdedit /set {globalsettings} custom:16000067 true
 
 :: Disable Kernel Mitigations
-call :setReg "HKLM\System\CurrentControlSet\Control\Session Manager\kernel" "MitigationOptions" "222222222222222222222222222222222222222222222222" REG_BINARY
+call :reg "HKLM\System\CurrentControlSet\Control\Session Manager\kernel" "MitigationOptions" "222222222222222222222222222222222222222222222222" REG_BINARY
 
 :: Disable Automatic maintenance
-call :setReg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" "MaintenanceDisabled" "1" REG_DWORD
+call :reg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" "MaintenanceDisabled" "1" %dw%
 
 :: Speed up start time
-call :setReg "HKCU\AppEvents\Schemes" "" "" /f
-call :setReg "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" "DelayedDesktopSwitchTimeout" "0" REG_DWORD
+call :reg "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" "DelayedDesktopSwitchTimeout" "0" %dw%
 
 :: Disable ApplicationPreLaunch & Prefetch
-
-:: The outdated Prefetcher and Superfetch services run in the background, analyzing loaded apps/libraries/services.
-:: They cache repeated data to disk and then to RAM, speeding up app launches.
-:: However, with an SSD, apps load quickly without this, so constant disk caching is unnecessary.
 powershell Disable-MMAgent -ApplicationPreLaunch
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" "EnablePrefetcher" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" "SfTracingState" "0" REG_DWORD
+call :reg "%pMemoryManagement%\PrefetchParameters" "EnablePrefetcher" "0" %dw%
+call :reg "%pMemoryManagement%\PrefetchParameters" "SfTracingState" "0" %dw%
 
 :: Reducing time of disabling processes and menu
-call :setReg "HKCU\Control Panel\Desktop" "AutoEndTasks" "1"
-call :setReg "HKCU\Control Panel\Desktop" "HungAppTimeout" "1000"
-call :setReg "HKCU\Control Panel\Desktop" "WaitToKillAppTimeout" "2000"
-call :setReg "HKCU\Control Panel\Desktop" "LowLevelHooksTimeout" "1000"
-call :setReg "HKCU\Control Panel\Desktop" "MenuShowDelay" "0"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control" "WaitToKillServiceTimeout" "2000"
+call :reg %pDesktop% "AutoEndTasks" "1"
+call :reg %pDesktop% "HungAppTimeout" "1000"
+call :reg %pDesktop% "WaitToKillAppTimeout" "2000"
+call :reg %pDesktop% "LowLevelHooksTimeout" "1000"
+call :reg %pDesktop% "MenuShowDelay" "0"
+call :reg "HKLM\SYSTEM\CurrentControlSet\Control" "WaitToKillServiceTimeout" "2000"
 
 :: Memory Tweaks
-:: Enabling Large System Cache makes the OS use all RAM for caching system files,
-:: except 4MB reserved for disk cache, improving Windows responsiveness.
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" "LargeSystemCache" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" "DisablePagingCombining" "1" REG_DWORD
+call :reg "%pMemoryManagement%" "LargeSystemCache" "1" %dw%
+call :reg "%pMemoryManagement%" "DisablePagingCombining" "1" %dw%
+call :reg "%pMemoryManagement%" "DisablePagingExecutive" "1" %dw%
 
-:: Enabling this parameter keeps the system kernel and drivers in RAM instead of the page file, improving responsiveness.
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" "DisablePagingExecutive" "1" REG_DWORD
-
-goto :eof
 :: DirectX Tweaks
-:: source - https://www.youtube.com/watch?v=itTcqcJxtbo&list=PLoFF46PsQQrMltkqYqbW4wnl0u03jy7am&index=2&t=2s
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "CreateGdiPrimaryOnSlaveGPU" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DriverSupportsCddDwmInterop" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCddSyncDxAccess" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCddSyncGPUAccess" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCddWaitForVerticalBlankEvent" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkCreateSwapChain" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkFreeGpuVirtualAddress" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkOpenSwapChain" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkShareSwapChainObject" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkWaitForVerticalBlankEvent" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "DxgkWaitForVerticalBlankEvent2" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "SwapChainBackBuffer" "1" "REG_DWORD"
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" "TdrResetFromTimeoutAsync" "1" "REG_DWORD"
+call :reg "%pDXGKrnl%" "CreateGdiPrimaryOnSlaveGPU" "1" %dw%
+call :reg "%pDXGKrnl%" "DriverSupportsCddDwmInterop" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkCddSyncDxAccess" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkCddSyncGPUAccess" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkCddWaitForVerticalBlankEvent" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkCreateSwapChain" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkFreeGpuVirtualAddress" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkOpenSwapChain" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkShareSwapChainObject" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkWaitForVerticalBlankEvent" "1" %dw%
+call :reg "%pDXGKrnl%" "DxgkWaitForVerticalBlankEvent2" "1" %dw%
+call :reg "%pDXGKrnl%" "SwapChainBackBuffer" "1" %dw%
+call :reg "%pDXGKrnl%" "TdrResetFromTimeoutAsync" "1" %dw%
 
-:: Serialize Timer Expiration mechanism, officially documented in Windows Internals 7th Edition Part 2
-:: sourcehttps://youtu.be/wil-09_5H0M?si=Fr6-tz2tuzjsIfTj
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" "SerializeTimerExpiration" "1" "REG_DWORD"
-
-:customGPUTweaks
+call :reg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" "SerializeTimerExpiration" "1" %dw%
+pause
 cls
-echo %colorText%What size of RAM do you have?%colorReset%
-echo.
-echo %colorText%[1] 4GB%colorReset%
-echo %colorText%[2] 6GB%colorReset%
-echo %colorText%[3] 8GB%colorReset%
-echo %colorText%[4] 16GB%colorReset%
-echo %colorText%[5] 32GB%colorReset%
-echo %colorText%[6] 64GB%colorReset%
-echo %colorText%[7] Skip if Unsure%colorReset%
-choice /C 1234567 /N /M "%colorSapphire%>%colorReset%"
-if errorlevel 7 goto main
-call :setRAMSize %errorlevel%
+:: Detect RAM size using PowerShell and handle arithmetic in PowerShell
+for /f "usebackq" %%i in (`powershell -Command "(Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1MB"`) do set ramSizeMB=%%i
 
-:setRAMSize
-set "ramSize=%1"
 set "svcHostThreshold="
 set "ramSizeText="
 
-if !ramSize! == 1 (
+if !ramSizeMB! lss 6144 (
     set "svcHostThreshold=68764420"
     set "ramSizeText=4GB"
-)
-if !ramSize! == 2 (
+) else if !ramSizeMB! lss 8192 (
     set "svcHostThreshold=103355478"
     set "ramSizeText=6GB"
-)
-if !ramSize! == 3 (
+) else if !ramSizeMB! lss 16384 (
     set "svcHostThreshold=137922056"
     set "ramSizeText=8GB"
-)
-if !ramSize! == 4 (
+) else if !ramSizeMB! lss 32768 (
     set "svcHostThreshold=376926742"
     set "ramSizeText=16GB"
-)
-if !ramSize! == 5 (
+) else if !ramSizeMB! lss 65536 (
     set "svcHostThreshold=861226034"
     set "ramSizeText=32GB"
-)
-if !ramSize! == 6 (
+) else (
     set "svcHostThreshold=1729136740"
     set "ramSizeText=64GB"
 )
 
 if defined svcHostThreshold (
-    call :setReg "HKLM\SYSTEM\ControlSet001\Control" "SvcHostSplitThresholdInKB" "!svcHostThreshold!" REG_DWORD
-    echo %colorGreen%Successfully applied tweak for !ramSizeText! RAM.%colorReset%
+    call :reg "HKLM\SYSTEM\ControlSet001\Control" "SvcHostSplitThresholdInKB" "!svcHostThreshold!" %dw%
+    echo Successfully applied tweak for !ramSizeText! RAM.
 ) else (
-    echo %colorRed%Invalid selection.%colorReset%
+    echo Could not determine RAM size.
 )
 pause
-goto next
-
-:next
 cls
-echo %colorText%What kind of video card do you have?%colorReset%
-echo.
-echo %colorText%[1] NVIDIA%colorReset%
-echo %colorText%[2] AMD%colorReset%
-echo.
-echo %colorText%[3] Skip if Unsure%colorReset%
-echo.
-choice /C 123 /N /M "%colorSapphire%>%colorReset%"
-if errorlevel 3 goto main
-if errorlevel 2 goto amd
-if errorlevel 1 goto nvidia
-
-:nvidia
-:: NVIDIA GPU Tweaks
-
-for /f %%i in ('wmic path Win32_VideoController get PNPDeviceID^| findstr /L "PCI\VEN_"') do (
-    for /f "tokens=3" %%a in ('reg query "HKLM\SYSTEM\ControlSet001\Enum\%%i" /v "Driver"') do (
-        for /f %%j in ('echo %%a ^| findstr "{"') do (
-            call :setReg "HKLM\System\ControlSet001\Control\Class\%%j" "DisableDynamicPstate" "1" "REG_DWORD"
-        )
-    )
+:: Detect GPU type using PowerShell
+set "gpuType="
+for /f "usebackq" %%i in (`powershell -Command "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name"`) do (
+    echo %%i | findstr /i "NVIDIA" >nul && set "gpuType=NVIDIA"
+    echo %%i | findstr /i "AMD" >nul && set "gpuType=AMD"
 )
 
-call :setReg "HKCU\SOFTWARE\NVIDIA Corporation\Global\NVTweak\Devices\509901423-0\Color" "NvCplUseColorCorrection" "0" REG_DWORD
-call :setReg "HKLM\SOFTWARE\NVIDIA Corporation\Global\FTS" "EnableRID44231" "0" REG_DWORD
-call :setReg "HKLM\SOFTWARE\NVIDIA Corporation\Global\FTS" "EnableRID64640" "0" REG_DWORD
-call :setReg "HKLM\SOFTWARE\NVIDIA Corporation\Global\FTS" "EnableRID66610" "0" REG_DWORD
-call :setReg "HKLM\SOFTWARE\NVIDIA Corporation\Global\Startup\SendTelemetryData" "0" REG_DWORD
-call :setReg "HKLM\SOFTWARE\NVIDIA Corporation\NvControlPanel2\Client" "OptInOrOutPreference" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "PlatformSupportMiracast" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" "RmGpsPsEnablePerCpuCoreDpc" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" "RmGpsPsEnablePerCpuCoreDpc" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm" "ComputePreemption" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm" "DisableCudaContextPreemption" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm" "DisablePreemption" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm" "DisablePreemptionOnS3S4" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm" "EnableCEPreemption" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm" "EnableTiledDisplay" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm" "RmGpsPsEnablePerCpuCoreDpc" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS" "EnableRID61684" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS" "EnableRID73779" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS" "EnableRID73780" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS" "EnableRID74361" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\Global\NVTweak" "RmGpsPsEnablePerCpuCoreDpc" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\Global\Startup" "SendTelemetryData" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\NVAPI" "RmGpsPsEnablePerCpuCoreDpc" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\Parameters" "ThreadPriority" "31" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\services\NvTelemetryContainer" "Start" "4" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "D3PCLatency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "F1TransitionLatency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LOWLATENCY" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "Node3DLowLatency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PciLatencyTimerControl" "20" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RMDeepL1EntryLatencyUsec" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RMLpwrEiIdleThresholdUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RMLpwrGrIdleThresholdUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RMLpwrGrRgIdleThresholdUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RMLpwrMsIdleThresholdUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RmGspcMaxFtuS" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RmGspcMinFtuS" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "RmGspcPerioduS" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "TCCSupported" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "VRDirectFlipDPCDelayUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "VRDirectFlipTimingMarginUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "VRDirectJITFlipMsHybridFlipDelayUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "vrrCursorMarginUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "vrrDeflickerMarginUs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "vrrDeflickerMaxUs" "1" REG_DWORD
+if "!gpuType!"=="NVIDIA" (
+    goto nvidia
+) else if "!gpuType!"=="AMD" (
+    goto amd
+) else (
+    echo Could not determine GPU type. Skipping GPU tweaks.
+    goto main
+)
+
+:nvidia
+call :reg "HKCU\SOFTWARE\NVIDIA Corporation\Global\NVTweak\Devices\509901423-0\Color" "NvCplUseColorCorrection" "0" %dw%
+call :reg "%pFTS%" "EnableRID44231" "0" %dw%
+call :reg "%pFTS%" "EnableRID64640" "0" %dw%
+call :reg "%pFTS%" "EnableRID66610" "0" %dw%
+call :reg "HKLM\SOFTWARE\NVIDIA Corporation\Global\Startup\SendTelemetryData" "0" %dw%
+call :reg "HKLM\SOFTWARE\NVIDIA Corporation\NvControlPanel2\Client" "OptInOrOutPreference" "0" %dw%
+call :reg "%pGraphicsDrivers%" "PlatformSupportMiracast" "0" %dw%
+call :reg "%pGraphicsDrivers%" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
+call :reg "%pGraphicsDrivers%\Power" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
+call :reg "%pNvlddmkm%" "ComputePreemption" "0" %dw%
+call :reg "%pNvlddmkm%" "DisableCudaContextPreemption" "1" %dw%
+call :reg "%pNvlddmkm%" "DisablePreemption" "1" %dw%
+call :reg "%pNvlddmkm%" "DisablePreemptionOnS3S4" "1" %dw%
+call :reg "%pNvlddmkm%" "EnableCEPreemption" "0" %dw%
+call :reg "%pNvlddmkm%" "EnableTiledDisplay" "0" %dw%
+call :reg "%pNvlddmkm%" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
+call :reg "%pNvlddmkm%\FTS" "EnableRID61684" "1" %dw%
+call :reg "%pNvlddmkm%\FTS" "EnableRID73779" "1" %dw%
+call :reg "%pNvlddmkm%\FTS" "EnableRID73780" "1" %dw%
+call :reg "%pNvlddmkm%\FTS" "EnableRID74361" "1" %dw%
+call :reg "%pNvlddmkm%\Global\NVTweak" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
+call :reg "%pNvlddmkm%\Global\Startup" "SendTelemetryData" "0" %dw%
+call :reg "%pNvlddmkm%\NVAPI" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
+call :reg "%pNvlddmkm%\Parameters" "ThreadPriority" "31" %dw%
+call :reg "HKLM\SYSTEM\CurrentControlSet\services\NvTelemetryContainer" "Start" "4" %dw%
+call :reg "%pClass%" "D3PCLatency" "1" %dw%
+call :reg "%pClass%" "F1TransitionLatency" "1" %dw%
+call :reg "%pClass%" "LOWLATENCY" "1" %dw%
+call :reg "%pClass%" "Node3DLowLatency" "1" %dw%
+call :reg "%pClass%" "PciLatencyTimerControl" "20" %dw%
+call :reg "%pClass%" "RMDeepL1EntryLatencyUsec" "1" %dw%
+call :reg "%pClass%" "RMLpwrEiIdleThresholdUs" "1" %dw%
+call :reg "%pClass%" "RMLpwrGrIdleThresholdUs" "1" %dw%
+call :reg "%pClass%" "RMLpwrGrRgIdleThresholdUs" "1" %dw%
+call :reg "%pClass%" "RMLpwrMsIdleThresholdUs" "1" %dw%
+call :reg "%pClass%" "RmGspcMaxFtuS" "1" %dw%
+call :reg "%pClass%" "RmGspcMinFtuS" "1" %dw%
+call :reg "%pClass%" "RmGspcPerioduS" "1" %dw%
+call :reg "%pClass%" "TCCSupported" "0" %dw%
+call :reg "%pClass%" "VRDirectFlipDPCDelayUs" "1" %dw%
+call :reg "%pClass%" "VRDirectFlipTimingMarginUs" "1" %dw%
+call :reg "%pClass%" "VRDirectJITFlipMsHybridFlipDelayUs" "1" %dw%
+call :reg "%pClass%" "vrrCursorMarginUs" "1" %dw%
+call :reg "%pClass%" "vrrDeflickerMarginUs" "1" %dw%
+call :reg "%pClass%" "vrrDeflickerMaxUs" "1" %dw%
+cls
+echo Successfully applied NVIDIA tweaks
+pause
 goto main
 
 :amd
 :: source - https://www.youtube.com/watch?v=nuUV2RoPOWc&t=160s
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowRSOverlay" "false" REG_SZ
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowSkins" "false" REG_SZ
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowSnapshot" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AllowSubscription" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "AutoColorDepthReduction_NA" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRMaxNoSnoopLatencyValue" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRMaxSnoopLatencyValue" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRNoSnoopL0Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRNoSnoopL1Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRSnoopL0Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "BGM_LTRSnoopL1Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalAllowDPrefSwitchingForGLSync" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalAllowDirectMemoryAccessTrig" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalNBLatencyForUnderFlow" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DalUrgentLatencyNs" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableBlockWrite" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableDMACopy" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableDrmdmaPowerGating" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableEarlySamuInit" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableFBCForFullScreenApp" "0" REG_SZ
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableFBCSupport" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisablePowerGating" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableSAMUPowerGating" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableUVDPowerGatingDynamic" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "DisableVCEPowerGating" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "EnableUlps" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "EnableUvdClockGating" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "EnableVceSwClockGating" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "GCOOPTION_DisableGPIOPowerSaveMode" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_DeLagEnabled" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_EnableComputePreemption" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_FRTEnabled" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_MaxUVDSessions" "32" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "KMD_RpmComputeLatency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRMaxNoSnoopLatency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRNoSnoopL1Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRSnoopL0Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "LTRSnoopL1Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_ActivityTarget" "30" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_AllGraphicLevel_DownHyst" "20" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_AllGraphicLevel_UpHyst" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_DGBMMMaxTransitionLatencyUvd" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_DGBPMMaxTransitionLatencyGfx" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_GPUPowerDownEnabled" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_MCLKStutterModeThreshold" "4096" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_ODNFeatureEnable" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_RTPMComputeF1Latency" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_SclkDeepSleepDisable" "1" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "PP_ThermalAutoThrottlingEnable" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "StutterMode" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "TVEnableOverscan" "0" REG_DWORD
-call :setReg "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" "WmAgpMaxIdleClk" "32" REG_DWORD
-
+call :reg "%pClass%" "AllowRSOverlay" "false" REG_SZ
+call :reg "%pClass%" "AllowSkins" "false" REG_SZ
+call :reg "%pClass%" "AllowSnapshot" "0" %dw%
+call :reg "%pClass%" "AllowSubscription" "0" %dw%
+call :reg "%pClass%" "AutoColorDepthReduction_NA" "0" %dw%
+call :reg "%pClass%" "BGM_LTRMaxNoSnoopLatencyValue" "1" %dw%
+call :reg "%pClass%" "BGM_LTRMaxSnoopLatencyValue" "1" %dw%
+call :reg "%pClass%" "BGM_LTRNoSnoopL0Latency" "1" %dw%
+call :reg "%pClass%" "BGM_LTRNoSnoopL1Latency" "1" %dw%
+call :reg "%pClass%" "BGM_LTRSnoopL0Latency" "1" %dw%
+call :reg "%pClass%" "BGM_LTRSnoopL1Latency" "1" %dw%
+call :reg "%pClass%" "DalAllowDPrefSwitchingForGLSync" "0" %dw%
+call :reg "%pClass%" "DalAllowDirectMemoryAccessTrig" "1" %dw%
+call :reg "%pClass%" "DalNBLatencyForUnderFlow" "1" %dw%
+call :reg "%pClass%" "DalUrgentLatencyNs" "1" %dw%
+call :reg "%pClass%" "DisableBlockWrite" "0" %dw%
+call :reg "%pClass%" "DisableDMACopy" "1" %dw%
+call :reg "%pClass%" "DisableDrmdmaPowerGating" "1" %dw%
+call :reg "%pClass%" "DisableEarlySamuInit" "1" %dw%
+call :reg "%pClass%" "DisableFBCForFullScreenApp" "0" REG_SZ
+call :reg "%pClass%" "DisableFBCSupport" "0" %dw%
+call :reg "%pClass%" "DisablePowerGating" "1" %dw%
+call :reg "%pClass%" "DisableSAMUPowerGating" "1" %dw%
+call :reg "%pClass%" "DisableUVDPowerGatingDynamic" "1" %dw%
+call :reg "%pClass%" "DisableVCEPowerGating" "1" %dw%
+call :reg "%pClass%" "EnableUlps" "0" %dw%
+call :reg "%pClass%" "EnableUvdClockGating" "1" %dw%
+call :reg "%pClass%" "EnableVceSwClockGating" "1" %dw%
+call :reg "%pClass%" "GCOOPTION_DisableGPIOPowerSaveMode" "1" %dw%
+call :reg "%pClass%" "KMD_DeLagEnabled" "0" %dw%
+call :reg "%pClass%" "KMD_EnableComputePreemption" "0" %dw%
+call :reg "%pClass%" "KMD_FRTEnabled" "0" %dw%
+call :reg "%pClass%" "KMD_MaxUVDSessions" "32" %dw%
+call :reg "%pClass%" "KMD_RpmComputeLatency" "1" %dw%
+call :reg "%pClass%" "LTRMaxNoSnoopLatency" "1" %dw%
+call :reg "%pClass%" "LTRNoSnoopL1Latency" "1" %dw%
+call :reg "%pClass%" "LTRSnoopL0Latency" "1" %dw%
+call :reg "%pClass%" "LTRSnoopL1Latency" "1" %dw%
+call :reg "%pClass%" "PP_ActivityTarget" "30" %dw%
+call :reg "%pClass%" "PP_AllGraphicLevel_DownHyst" "20" %dw%
+call :reg "%pClass%" "PP_AllGraphicLevel_UpHyst" "0" %dw%
+call :reg "%pClass%" "PP_DGBMMMaxTransitionLatencyUvd" "1" %dw%
+call :reg "%pClass%" "PP_DGBPMMaxTransitionLatencyGfx" "1" %dw%
+call :reg "%pClass%" "PP_GPUPowerDownEnabled" "0" %dw%
+call :reg "%pClass%" "PP_MCLKStutterModeThreshold" "4096" %dw%
+call :reg "%pClass%" "PP_ODNFeatureEnable" "1" %dw%
+call :reg "%pClass%" "PP_RTPMComputeF1Latency" "1" %dw%
+call :reg "%pClass%" "PP_SclkDeepSleepDisable" "1" %dw%
+call :reg "%pClass%" "PP_ThermalAutoThrottlingEnable" "0" %dw%
+call :reg "%pClass%" "StutterMode" "0" %dw%
+call :reg "%pClass%" "TVEnableOverscan" "0" %dw%
+call :reg "%pClass%" "WmAgpMaxIdleClk" "32" %dw%
+cls
+echo Successfully applied AMD tweaks
+pause
 goto main
 
 :freeUpSpace
@@ -459,6 +401,7 @@ echo %colorText%Would you like to run the advanced disk cleaner?%colorReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if not errorlevel 1 (
     echo %colorText%Running advanced disk cleaner...%colorReset%
+    cleanmgr /sagerun:65535
 )
 
 goto main
@@ -473,13 +416,16 @@ cls
 start "" "https://privacy.sexy/"
 echo %colorText%Recommended to set a Standard option if you are not sure what to do%colorReset%
 echo %colorText%and also dont forget to download revert version for your selected tweaks if anything can go wrong%colorReset%
-pause
 goto main
 
-:setReg
+:reg
 set "key=%~1"
 set "valueName=%~2"
 set "value=%~3"
 set "type=%~4"
 if "%type%"=="" set "type=REG_SZ"
 reg.exe add "%key%" /v "%valueName%" /t "%type%" /d "%value%" /f
+if errorlevel 1 (
+    echo Error: Failed to add registry key "%key%" with value "%valueName%".
+    goto :eof
+)
