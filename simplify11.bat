@@ -5,48 +5,48 @@ set "dw=REG_DWORD"
 title Simplify11
 
 :: Catppuccin colors
-set "colorRosewater=[38;5;224m"
-set "colorFlamingo=[38;5;210m"
-set "colorPink=[38;5;212m"
-set "colorMauve=[38;5;141m"
-set "colorRed=[38;5;203m"
-set "colorMaroon=[38;5;167m"
-set "colorPeach=[38;5;209m"
-set "colorYellow=[38;5;229m"
-set "colorGreen=[38;5;120m"
-set "colorTeal=[38;5;116m"
-set "colorSky=[38;5;111m"
-set "colorSapphire=[38;5;69m"
-set "colorBlue=[38;5;75m"
-set "colorLavender=[38;5;183m"
-set "colorText=[38;5;250m"
-set "colorReset=[0m"
+set "cRosewater=[38;5;224m"
+set "cFlamingo=[38;5;210m"
+set "cPink=[38;5;212m"
+set "cMauve=[38;5;141m"
+set "cRed=[38;5;203m"
+set "cMaroon=[38;5;167m"
+set "cPeach=[38;5;209m"
+set "cYellow=[38;5;229m"
+set "cGreen=[38;5;120m"
+set "cTeal=[38;5;116m"
+set "cSky=[38;5;111m"
+set "cSapphire=[38;5;69m"
+set "cBlue=[38;5;75m"
+set "cLavender=[38;5;183m"
+set "cText=[38;5;250m"
+set "cReset=[0m"
 
 cls
 echo.
 echo.
-echo %colorRosewater%   "Before using any of the options, please make a system restore point,%colorReset%
-echo %colorRosewater%   I do not take any responsibility if you break your system, lose data,%colorReset%
-echo %colorRosewater%   or have a performance decrease, thank you for understanding"%colorReset%
+echo %cRosewater%   "Before using any of the options, please make a system restore point,%cReset%
+echo %cRosewater%   I do not take any responsibility if you break your system, lose data,%cReset%
+echo %cRosewater%   or have a performance decrease, thank you for understanding"%cReset%
 echo.
-echo %colorFlamingo%   I tried as hard as possible to make the script universal for everyone!%colorReset%
+echo %cFlamingo%   I tried as hard as possible to make the script universal for everyone!%cReset%
 echo.
 echo.
-set /p=%colorText%Press any key to continue...%colorReset%
+set /p=%cText%Press any key to continue...%cReset%
 
 :main
 cls
 echo.
-echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
-echo %colorMauve% │%colorMauve% Inspired by every "Win Tweaker", this script reveals a simpler way %colorMauve%│%colorReset%
-echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
-echo %colorMauve% │%colorText% [1] Apply Performance Tweaks                                       %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [2] Free Up Space                                                  %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [3] Launch WinUtil - Install Programs and Tweaks                   %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [4] Privacy.Sexy - Create a personal batch in clicks               %colorMauve%│%colorReset%
-echo %colorMauve% │%colorText% [5] Exit                                                           %colorMauve%│%colorReset%
-echo %colorMauve% ──────────────────────────────────────────────────────────────────────%colorReset%
-choice /C 123456 /N /M "%colorSapphire%>%colorReset%"
+echo %cMauve% ──────────────────────────────────────────────────────────%cReset%
+echo %cMauve% │%cMauve% Simplify your setup with Essential Tweaks and Scripts  %cMauve%│%cReset%
+echo %cMauve% ──────────────────────────────────────────────────────────%cReset%
+echo %cMauve% │%cText% [1] Apply Performance Tweaks                           %cMauve%│%cReset%
+echo %cMauve% │%cText% [2] Free Up Space                                      %cMauve%│%cReset%
+echo %cMauve% │%cText% [3] Launch WinUtil - Install Programs and Tweaks       %cMauve%│%cReset%
+echo %cMauve% │%cText% [4] Privacy.Sexy - Create a personal batch in clicks   %cMauve%│%cReset%
+echo %cMauve% │%cText% [5] Exit                                               %cMauve%│%cReset%
+echo %cMauve% ──────────────────────────────────────────────────────────%cReset%
+choice /C 123456 /N /M "%cSapphire%>%cReset%"
 goto %errorlevel%
 
 :1
@@ -70,25 +70,25 @@ cls
 exit
 
 :restoreSuggestion
-echo %colorText%Checking for existing 'Pre-Script Restore Point'...%colorReset%
+echo %cText%Checking for existing 'Pre-Script Restore Point'...%cReset%
 for /f "usebackq delims=" %%i in (`powershell -Command "Get-ComputerRestorePoint | Where-Object { $_.Description -eq 'Pre-Script Restore Point' } | Measure-Object -Property Description | Select-Object -ExpandProperty Count"`) do (
     if %%i gtr 0 (
-        echo %colorYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%colorReset%
+        echo %cYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%cReset%
         goto applyTweaks
     )
 )
 
-echo %colorText%Would you like to create a system restore point before proceeding?%colorReset%
+echo %cText%Would you like to create a system restore point before proceeding?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if %errorlevel%==2 goto applyTweaks
 
-echo %colorText%Creating system restore point...%colorReset%
+echo %cText%Creating system restore point...%cReset%
 reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t %dw% /d "0" /f
 powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
 if %errorlevel%==0 (
-    echo %colorText%Restore point created successfully.%colorReset%
+    echo %cText%Restore point created successfully.%cReset%
 ) else (
-    echo %colorRed%Failed to create restore point. Please check your system settings and try again.%colorReset%
+    echo %cRed%Failed to create restore point. Please check your system settings and try again.%cReset%
 )
 
 :applyTweaks
@@ -114,8 +114,8 @@ cls
 call :reg "%pMouse%" "MouseSpeed" "0"
 call :reg "%pMouse%" "MouseThreshold1" "0"
 call :reg "%pMouse%" "MouseThreshold2" "0"
-call :reg "%pMouclass%" "MouseDataQueueSize" "20" %dw%
-call :reg "%pKbdclass%" "KeyboardDataQueueSize" "20" %dw%
+call :reg "%pMouclass%" "MouseDataQueueSize" %dw% "20"
+call :reg "%pKbdclass%" "KeyboardDataQueueSize" %dw% "20"
 
 :: Disable StickyKeys
 call :reg "%pAccessibility%" "StickyKeys" "506"
@@ -126,40 +126,40 @@ call :reg "%pAccessibility%\Keyboard Response" "AutoRepeatDelay" "0"
 call :reg "%pAccessibility%\Keyboard Response" "Flags" "122"
 
 :: GPU Tweaks
-call :reg "%pGraphicsDrivers%" "HwSchMode" "2" %dw%
-call :reg "HKLM\SYSTEM\ControlSet001\Control\GraphicsDrivers\Scheduler" "EnablePreemption" "0" %dw%
+call :reg "%pGraphicsDrivers%" "HwSchMode" %dw% "2"
+call :reg "HKLM\SYSTEM\ControlSet001\Control\GraphicsDrivers\Scheduler" "EnablePreemption" %dw% "0"
 
 :: Network Tweaks
 reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "NetworkThrottlingIndex" /t REG_DWORD /d 0xffffffff /f
-call :reg "%pMultimedia%" "SystemResponsiveness" "10" %dw%
-call :reg "%pMultimedia%" "NoLazyMode" "1" %dw%
+call :reg "%pMultimedia%" "SystemResponsiveness" %dw% "10"
+call :reg "%pMultimedia%" "NoLazyMode" %dw% "1"
 
 :: CPU Tweaks
-call :reg "%pMultimedia%" "LazyModeTimeout" "10000" %dw%
+call :reg "%pMultimedia%" "LazyModeTimeout" %dw% "10000"
 
 :: Power Tweaks
-call :reg "%pPower%" "PowerThrottlingOff" "1" %dw%
-call :reg "%pPower%" "EnergyEstimationEnabled" "0" %dw%
-call :reg "%pPower%" "EventProcessorEnabled" "0" %dw%
-call :reg "%pPower%" "PlatformAoAcOverride" "0" %dw%
-call :reg "%pPower%" "CsEnabled" "0" %dw%
+call :reg "%pPower%" "PowerThrottlingOff" %dw% "1"
+call :reg "%pPower%" "EnergyEstimationEnabled" %dw% "0"
+call :reg "%pPower%" "EventProcessorEnabled" %dw% "0"
+call :reg "%pPower%" "PlatformAoAcOverride" %dw% "0"
+call :reg "%pPower%" "CsEnabled" %dw% "0"
 
 :: Activate Hidden Ultimate Performance Power Plan
 powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
 powercfg -setactive eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
 
 :: Other Tweaks
-call :reg "%pDXGKrnl%\Parameters" "ThreadPriority" "15" %dw%
-call :reg "HKLM\SYSTEM\CurrentControlSet\services\USBHUB3\Parameters" "ThreadPriority" "15" %dw%
-call :reg "HKLM\SYSTEM\CurrentControlSet\services\USBXHCI\Parameters" "ThreadPriority" "15" %dw%
-call :reg "%pMouclass%" "ThreadPriority" "31" %dw%
-call :reg "%pKbdclass%" "ThreadPriority" "31" %dw%
+call :reg "%pDXGKrnl%\Parameters" "ThreadPriority" %dw% "15"
+call :reg "HKLM\SYSTEM\CurrentControlSet\services\USBHUB3\Parameters" "ThreadPriority" %dw% "15"
+call :reg "HKLM\SYSTEM\CurrentControlSet\services\USBXHCI\Parameters" "ThreadPriority" %dw% "15"
+call :reg "%pMouclass%" "ThreadPriority" %dw% "31"
+call :reg "%pKbdclass%" "ThreadPriority" %dw% "31"
 
 reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v "Win32PrioritySeparation" /t REG_DWORD /d 0x00000024 /f
-call :reg "%pPriorityControl%" "IRQ8Priority" "1" %dw%
-call :reg "%pPriorityControl%" "IRQ16Priority" "2" %dw%
+call :reg "%pPriorityControl%" "IRQ8Priority" %dw% "1"
+call :reg "%pPriorityControl%" "IRQ16Priority" %dw% "2"
 
-call :reg "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize" "Startupdelayinmsec" "0" %dw%
+call :reg "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize" "Startupdelayinmsec" %dw% "0"
 
 :: Boot Optimization
 bcdedit /timeout 0
@@ -167,48 +167,48 @@ bcdedit /set quietboot yes
 bcdedit /set {globalsettings} custom:16000067 true
 
 :: Disable Kernel Mitigations
-call :reg "HKLM\System\CurrentControlSet\Control\Session Manager\kernel" "MitigationOptions" "222222222222222222222222222222222222222222222222" REG_BINARY
+call :reg "HKLM\System\CurrentControlSet\Control\Session Manager\kernel" "MitigationOptions" REG_BINARY "222222222222222222222222222222222222222222222222"
 
 :: Disable Automatic maintenance
-call :reg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" "MaintenanceDisabled" "1" %dw%
+call :reg "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" "MaintenanceDisabled" %dw% "1"
 
 :: Speed up start time
-call :reg "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" "DelayedDesktopSwitchTimeout" "0" %dw%
+call :reg "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" "DelayedDesktopSwitchTimeout" %dw% "0"
 
 :: Disable ApplicationPreLaunch & Prefetch
 powershell Disable-MMAgent -ApplicationPreLaunch
-call :reg "%pMemoryManagement%\PrefetchParameters" "EnablePrefetcher" "0" %dw%
-call :reg "%pMemoryManagement%\PrefetchParameters" "SfTracingState" "0" %dw%
+call :reg "%pMemoryManagement%\PrefetchParameters" "EnablePrefetcher" %dw% "0"
+call :reg "%pMemoryManagement%\PrefetchParameters" "SfTracingState" %dw% "0"
 
 :: Reducing time of disabling processes and menu
-call :reg %pDesktop% "AutoEndTasks" "1"
-call :reg %pDesktop% "HungAppTimeout" "1000"
-call :reg %pDesktop% "WaitToKillAppTimeout" "2000"
-call :reg %pDesktop% "LowLevelHooksTimeout" "1000"
-call :reg %pDesktop% "MenuShowDelay" "0"
+call :reg "%pDesktop%" "AutoEndTasks" "1"
+call :reg "%pDesktop%" "HungAppTimeout" "1000"
+call :reg "%pDesktop%" "WaitToKillAppTimeout" "2000"
+call :reg "%pDesktop%" "LowLevelHooksTimeout" "1000"
+call :reg "%pDesktop%" "MenuShowDelay" "0"
 call :reg "HKLM\SYSTEM\CurrentControlSet\Control" "WaitToKillServiceTimeout" "2000"
 
 :: Memory Tweaks
-call :reg "%pMemoryManagement%" "LargeSystemCache" "1" %dw%
-call :reg "%pMemoryManagement%" "DisablePagingCombining" "1" %dw%
-call :reg "%pMemoryManagement%" "DisablePagingExecutive" "1" %dw%
+call :reg "%pMemoryManagement%" "LargeSystemCache" %dw% "1"
+call :reg "%pMemoryManagement%" "DisablePagingCombining" %dw% "1"
+call :reg "%pMemoryManagement%" "DisablePagingExecutive" %dw% "1"
 
 :: DirectX Tweaks
-call :reg "%pDXGKrnl%" "CreateGdiPrimaryOnSlaveGPU" "1" %dw%
-call :reg "%pDXGKrnl%" "DriverSupportsCddDwmInterop" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkCddSyncDxAccess" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkCddSyncGPUAccess" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkCddWaitForVerticalBlankEvent" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkCreateSwapChain" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkFreeGpuVirtualAddress" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkOpenSwapChain" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkShareSwapChainObject" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkWaitForVerticalBlankEvent" "1" %dw%
-call :reg "%pDXGKrnl%" "DxgkWaitForVerticalBlankEvent2" "1" %dw%
-call :reg "%pDXGKrnl%" "SwapChainBackBuffer" "1" %dw%
-call :reg "%pDXGKrnl%" "TdrResetFromTimeoutAsync" "1" %dw%
+call :reg "%pDXGKrnl%" "CreateGdiPrimaryOnSlaveGPU" %dw% "1"
+call :reg "%pDXGKrnl%" "DriverSupportsCddDwmInterop" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkCddSyncDxAccess" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkCddSyncGPUAccess" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkCddWaitForVerticalBlankEvent" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkCreateSwapChain" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkFreeGpuVirtualAddress" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkOpenSwapChain" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkShareSwapChainObject" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkWaitForVerticalBlankEvent" %dw% "1"
+call :reg "%pDXGKrnl%" "DxgkWaitForVerticalBlankEvent2" %dw% "1"
+call :reg "%pDXGKrnl%" "SwapChainBackBuffer" %dw% "1"
+call :reg "%pDXGKrnl%" "TdrResetFromTimeoutAsync" %dw% "1"
 
-call :reg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" "SerializeTimerExpiration" "1" %dw%
+call :reg "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" "SerializeTimerExpiration" %dw% "1"
 pause
 cls
 :: Detect RAM size using PowerShell and handle arithmetic in PowerShell
@@ -238,7 +238,7 @@ if !ramSizeMB! lss 6144 (
 )
 
 if defined svcHostThreshold (
-    call :reg "HKLM\SYSTEM\ControlSet001\Control" "SvcHostSplitThresholdInKB" "!svcHostThreshold!" %dw%
+    call :reg "HKLM\SYSTEM\ControlSet001\Control" "SvcHostSplitThresholdInKB" %dw% "!svcHostThreshold!"
     echo Successfully applied tweak for !ramSizeText! RAM.
 ) else (
     echo Could not determine RAM size.
@@ -262,51 +262,51 @@ if "!gpuType!"=="NVIDIA" (
 )
 
 :nvidia
-call :reg "HKCU\SOFTWARE\NVIDIA Corporation\Global\NVTweak\Devices\509901423-0\Color" "NvCplUseColorCorrection" "0" %dw%
-call :reg "%pFTS%" "EnableRID44231" "0" %dw%
-call :reg "%pFTS%" "EnableRID64640" "0" %dw%
-call :reg "%pFTS%" "EnableRID66610" "0" %dw%
-call :reg "HKLM\SOFTWARE\NVIDIA Corporation\Global\Startup\SendTelemetryData" "0" %dw%
-call :reg "HKLM\SOFTWARE\NVIDIA Corporation\NvControlPanel2\Client" "OptInOrOutPreference" "0" %dw%
-call :reg "%pGraphicsDrivers%" "PlatformSupportMiracast" "0" %dw%
-call :reg "%pGraphicsDrivers%" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
-call :reg "%pGraphicsDrivers%\Power" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
-call :reg "%pNvlddmkm%" "ComputePreemption" "0" %dw%
-call :reg "%pNvlddmkm%" "DisableCudaContextPreemption" "1" %dw%
-call :reg "%pNvlddmkm%" "DisablePreemption" "1" %dw%
-call :reg "%pNvlddmkm%" "DisablePreemptionOnS3S4" "1" %dw%
-call :reg "%pNvlddmkm%" "EnableCEPreemption" "0" %dw%
-call :reg "%pNvlddmkm%" "EnableTiledDisplay" "0" %dw%
-call :reg "%pNvlddmkm%" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
-call :reg "%pNvlddmkm%\FTS" "EnableRID61684" "1" %dw%
-call :reg "%pNvlddmkm%\FTS" "EnableRID73779" "1" %dw%
-call :reg "%pNvlddmkm%\FTS" "EnableRID73780" "1" %dw%
-call :reg "%pNvlddmkm%\FTS" "EnableRID74361" "1" %dw%
-call :reg "%pNvlddmkm%\Global\NVTweak" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
-call :reg "%pNvlddmkm%\Global\Startup" "SendTelemetryData" "0" %dw%
-call :reg "%pNvlddmkm%\NVAPI" "RmGpsPsEnablePerCpuCoreDpc" "1" %dw%
-call :reg "%pNvlddmkm%\Parameters" "ThreadPriority" "31" %dw%
-call :reg "HKLM\SYSTEM\CurrentControlSet\services\NvTelemetryContainer" "Start" "4" %dw%
-call :reg "%pClass%" "D3PCLatency" "1" %dw%
-call :reg "%pClass%" "F1TransitionLatency" "1" %dw%
-call :reg "%pClass%" "LOWLATENCY" "1" %dw%
-call :reg "%pClass%" "Node3DLowLatency" "1" %dw%
-call :reg "%pClass%" "PciLatencyTimerControl" "20" %dw%
-call :reg "%pClass%" "RMDeepL1EntryLatencyUsec" "1" %dw%
-call :reg "%pClass%" "RMLpwrEiIdleThresholdUs" "1" %dw%
-call :reg "%pClass%" "RMLpwrGrIdleThresholdUs" "1" %dw%
-call :reg "%pClass%" "RMLpwrGrRgIdleThresholdUs" "1" %dw%
-call :reg "%pClass%" "RMLpwrMsIdleThresholdUs" "1" %dw%
-call :reg "%pClass%" "RmGspcMaxFtuS" "1" %dw%
-call :reg "%pClass%" "RmGspcMinFtuS" "1" %dw%
-call :reg "%pClass%" "RmGspcPerioduS" "1" %dw%
-call :reg "%pClass%" "TCCSupported" "0" %dw%
-call :reg "%pClass%" "VRDirectFlipDPCDelayUs" "1" %dw%
-call :reg "%pClass%" "VRDirectFlipTimingMarginUs" "1" %dw%
-call :reg "%pClass%" "VRDirectJITFlipMsHybridFlipDelayUs" "1" %dw%
-call :reg "%pClass%" "vrrCursorMarginUs" "1" %dw%
-call :reg "%pClass%" "vrrDeflickerMarginUs" "1" %dw%
-call :reg "%pClass%" "vrrDeflickerMaxUs" "1" %dw%
+call :reg "HKCU\SOFTWARE\NVIDIA Corporation\Global\NVTweak\Devices\509901423-0\c" "NvCplUsecCorrection" %dw% "0"
+call :reg "%pFTS%" "EnableRID44231" %dw% "0"
+call :reg "%pFTS%" "EnableRID64640" %dw% "0"
+call :reg "%pFTS%" "EnableRID66610" %dw% "0"
+call :reg "HKLM\SOFTWARE\NVIDIA Corporation\Global\Startup\SendTelemetryData" %dw% "0"
+call :reg "HKLM\SOFTWARE\NVIDIA Corporation\NvControlPanel2\Client" "OptInOrOutPreference" %dw% "0"
+call :reg "%pGraphicsDrivers%" "PlatformSupportMiracast" %dw% "0"
+call :reg "%pGraphicsDrivers%" "RmGpsPsEnablePerCpuCoreDpc" %dw% "1"
+call :reg "%pGraphicsDrivers%\Power" "RmGpsPsEnablePerCpuCoreDpc" %dw% "1"
+call :reg "%pNvlddmkm%" "ComputePreemption" %dw% "0"
+call :reg "%pNvlddmkm%" "DisableCudaContextPreemption" %dw% "1"
+call :reg "%pNvlddmkm%" "DisablePreemption" %dw% "1"
+call :reg "%pNvlddmkm%" "DisablePreemptionOnS3S4" %dw% "1"
+call :reg "%pNvlddmkm%" "EnableCEPreemption" %dw% "0"
+call :reg "%pNvlddmkm%" "EnableTiledDisplay" %dw% "0"
+call :reg "%pNvlddmkm%" "RmGpsPsEnablePerCpuCoreDpc" %dw% "1"
+call :reg "%pNvlddmkm%\FTS" "EnableRID61684" %dw% "1"
+call :reg "%pNvlddmkm%\FTS" "EnableRID73779" %dw% "1"
+call :reg "%pNvlddmkm%\FTS" "EnableRID73780" %dw% "1"
+call :reg "%pNvlddmkm%\FTS" "EnableRID74361" %dw% "1"
+call :reg "%pNvlddmkm%\Global\NVTweak" "RmGpsPsEnablePerCpuCoreDpc" %dw% "1"
+call :reg "%pNvlddmkm%\Global\Startup" "SendTelemetryData" %dw% "0"
+call :reg "%pNvlddmkm%\NVAPI" "RmGpsPsEnablePerCpuCoreDpc" %dw% "1"
+call :reg "%pNvlddmkm%\Parameters" "ThreadPriority" %dw% "31"
+call :reg "HKLM\SYSTEM\CurrentControlSet\services\NvTelemetryContainer" "Start" %dw% "4"
+call :reg "%pClass%" "D3PCLatency" %dw% "1"
+call :reg "%pClass%" "F1TransitionLatency" %dw% "1"
+call :reg "%pClass%" "LOWLATENCY" %dw% "1"
+call :reg "%pClass%" "Node3DLowLatency" %dw% "1"
+call :reg "%pClass%" "PciLatencyTimerControl" %dw% "20"
+call :reg "%pClass%" "RMDeepL1EntryLatencyUsec" %dw% "1"
+call :reg "%pClass%" "RMLpwrEiIdleThresholdUs" %dw% "1"
+call :reg "%pClass%" "RMLpwrGrIdleThresholdUs" %dw% "1"
+call :reg "%pClass%" "RMLpwrGrRgIdleThresholdUs" %dw% "1"
+call :reg "%pClass%" "RMLpwrMsIdleThresholdUs" %dw% "1"
+call :reg "%pClass%" "RmGspcMaxFtuS" %dw% "1"
+call :reg "%pClass%" "RmGspcMinFtuS" %dw% "1"
+call :reg "%pClass%" "RmGspcPerioduS" %dw% "1"
+call :reg "%pClass%" "TCCSupported" %dw% "0"
+call :reg "%pClass%" "VRDirectFlipDPCDelayUs" %dw% "1"
+call :reg "%pClass%" "VRDirectFlipTimingMarginUs" %dw% "1"
+call :reg "%pClass%" "VRDirectJITFlipMsHybridFlipDelayUs" %dw% "1"
+call :reg "%pClass%" "vrrCursorMarginUs" %dw% "1"
+call :reg "%pClass%" "vrrDeflickerMarginUs" %dw% "1"
+call :reg "%pClass%" "vrrDeflickerMaxUs" %dw% "1"
 cls
 echo Successfully applied NVIDIA tweaks
 pause
@@ -316,56 +316,56 @@ goto main
 :: source - https://www.youtube.com/watch?v=nuUV2RoPOWc&t=160s
 call :reg "%pClass%" "AllowRSOverlay" "false" REG_SZ
 call :reg "%pClass%" "AllowSkins" "false" REG_SZ
-call :reg "%pClass%" "AllowSnapshot" "0" %dw%
-call :reg "%pClass%" "AllowSubscription" "0" %dw%
-call :reg "%pClass%" "AutoColorDepthReduction_NA" "0" %dw%
-call :reg "%pClass%" "BGM_LTRMaxNoSnoopLatencyValue" "1" %dw%
-call :reg "%pClass%" "BGM_LTRMaxSnoopLatencyValue" "1" %dw%
-call :reg "%pClass%" "BGM_LTRNoSnoopL0Latency" "1" %dw%
-call :reg "%pClass%" "BGM_LTRNoSnoopL1Latency" "1" %dw%
-call :reg "%pClass%" "BGM_LTRSnoopL0Latency" "1" %dw%
-call :reg "%pClass%" "BGM_LTRSnoopL1Latency" "1" %dw%
-call :reg "%pClass%" "DalAllowDPrefSwitchingForGLSync" "0" %dw%
-call :reg "%pClass%" "DalAllowDirectMemoryAccessTrig" "1" %dw%
-call :reg "%pClass%" "DalNBLatencyForUnderFlow" "1" %dw%
-call :reg "%pClass%" "DalUrgentLatencyNs" "1" %dw%
-call :reg "%pClass%" "DisableBlockWrite" "0" %dw%
-call :reg "%pClass%" "DisableDMACopy" "1" %dw%
-call :reg "%pClass%" "DisableDrmdmaPowerGating" "1" %dw%
-call :reg "%pClass%" "DisableEarlySamuInit" "1" %dw%
+call :reg "%pClass%" "AllowSnapshot" %dw% "0"
+call :reg "%pClass%" "AllowSubscription" %dw% "0"
+call :reg "%pClass%" "AutocDepthReduction_NA" %dw% "0"
+call :reg "%pClass%" "BGM_LTRMaxNoSnoopLatencyValue" %dw% "1"
+call :reg "%pClass%" "BGM_LTRMaxSnoopLatencyValue" %dw% "1"
+call :reg "%pClass%" "BGM_LTRNoSnoopL0Latency" %dw% "1"
+call :reg "%pClass%" "BGM_LTRNoSnoopL1Latency" %dw% "1"
+call :reg "%pClass%" "BGM_LTRSnoopL0Latency" %dw% "1"
+call :reg "%pClass%" "BGM_LTRSnoopL1Latency" %dw% "1"
+call :reg "%pClass%" "DalAllowDPrefSwitchingForGLSync" %dw% "0"
+call :reg "%pClass%" "DalAllowDirectMemoryAccessTrig" %dw% "1"
+call :reg "%pClass%" "DalNBLatencyForUnderFlow" %dw% "1"
+call :reg "%pClass%" "DalUrgentLatencyNs" %dw% "1"
+call :reg "%pClass%" "DisableBlockWrite" %dw% "0"
+call :reg "%pClass%" "DisableDMACopy" %dw% "1"
+call :reg "%pClass%" "DisableDrmdmaPowerGating" %dw% "1"
+call :reg "%pClass%" "DisableEarlySamuInit" %dw% "1"
 call :reg "%pClass%" "DisableFBCForFullScreenApp" "0" REG_SZ
-call :reg "%pClass%" "DisableFBCSupport" "0" %dw%
-call :reg "%pClass%" "DisablePowerGating" "1" %dw%
-call :reg "%pClass%" "DisableSAMUPowerGating" "1" %dw%
-call :reg "%pClass%" "DisableUVDPowerGatingDynamic" "1" %dw%
-call :reg "%pClass%" "DisableVCEPowerGating" "1" %dw%
-call :reg "%pClass%" "EnableUlps" "0" %dw%
-call :reg "%pClass%" "EnableUvdClockGating" "1" %dw%
-call :reg "%pClass%" "EnableVceSwClockGating" "1" %dw%
-call :reg "%pClass%" "GCOOPTION_DisableGPIOPowerSaveMode" "1" %dw%
-call :reg "%pClass%" "KMD_DeLagEnabled" "0" %dw%
-call :reg "%pClass%" "KMD_EnableComputePreemption" "0" %dw%
-call :reg "%pClass%" "KMD_FRTEnabled" "0" %dw%
-call :reg "%pClass%" "KMD_MaxUVDSessions" "32" %dw%
-call :reg "%pClass%" "KMD_RpmComputeLatency" "1" %dw%
-call :reg "%pClass%" "LTRMaxNoSnoopLatency" "1" %dw%
-call :reg "%pClass%" "LTRNoSnoopL1Latency" "1" %dw%
-call :reg "%pClass%" "LTRSnoopL0Latency" "1" %dw%
-call :reg "%pClass%" "LTRSnoopL1Latency" "1" %dw%
-call :reg "%pClass%" "PP_ActivityTarget" "30" %dw%
-call :reg "%pClass%" "PP_AllGraphicLevel_DownHyst" "20" %dw%
-call :reg "%pClass%" "PP_AllGraphicLevel_UpHyst" "0" %dw%
-call :reg "%pClass%" "PP_DGBMMMaxTransitionLatencyUvd" "1" %dw%
-call :reg "%pClass%" "PP_DGBPMMaxTransitionLatencyGfx" "1" %dw%
-call :reg "%pClass%" "PP_GPUPowerDownEnabled" "0" %dw%
-call :reg "%pClass%" "PP_MCLKStutterModeThreshold" "4096" %dw%
-call :reg "%pClass%" "PP_ODNFeatureEnable" "1" %dw%
-call :reg "%pClass%" "PP_RTPMComputeF1Latency" "1" %dw%
-call :reg "%pClass%" "PP_SclkDeepSleepDisable" "1" %dw%
-call :reg "%pClass%" "PP_ThermalAutoThrottlingEnable" "0" %dw%
-call :reg "%pClass%" "StutterMode" "0" %dw%
-call :reg "%pClass%" "TVEnableOverscan" "0" %dw%
-call :reg "%pClass%" "WmAgpMaxIdleClk" "32" %dw%
+call :reg "%pClass%" "DisableFBCSupport" %dw% "0"
+call :reg "%pClass%" "DisablePowerGating" %dw% "1"
+call :reg "%pClass%" "DisableSAMUPowerGating" %dw% "1"
+call :reg "%pClass%" "DisableUVDPowerGatingDynamic" %dw% "1"
+call :reg "%pClass%" "DisableVCEPowerGating" %dw% "1"
+call :reg "%pClass%" "EnableUlps" %dw% "0"
+call :reg "%pClass%" "EnableUvdClockGating" %dw% "1"
+call :reg "%pClass%" "EnableVceSwClockGating" %dw% "1"
+call :reg "%pClass%" "GCOOPTION_DisableGPIOPowerSaveMode" %dw% "1"
+call :reg "%pClass%" "KMD_DeLagEnabled" %dw% "0"
+call :reg "%pClass%" "KMD_EnableComputePreemption" %dw% "0"
+call :reg "%pClass%" "KMD_FRTEnabled" %dw% "0"
+call :reg "%pClass%" "KMD_MaxUVDSessions" %dw% "32"
+call :reg "%pClass%" "KMD_RpmComputeLatency" %dw% "1"
+call :reg "%pClass%" "LTRMaxNoSnoopLatency" %dw% "1"
+call :reg "%pClass%" "LTRNoSnoopL1Latency" %dw% "1"
+call :reg "%pClass%" "LTRSnoopL0Latency" %dw% "1"
+call :reg "%pClass%" "LTRSnoopL1Latency" %dw% "1"
+call :reg "%pClass%" "PP_ActivityTarget" %dw% "30"
+call :reg "%pClass%" "PP_AllGraphicLevel_DownHyst" %dw% "20"
+call :reg "%pClass%" "PP_AllGraphicLevel_UpHyst" %dw% "0"
+call :reg "%pClass%" "PP_DGBMMMaxTransitionLatencyUvd" %dw% "1"
+call :reg "%pClass%" "PP_DGBPMMaxTransitionLatencyGfx" %dw% "1"
+call :reg "%pClass%" "PP_GPUPowerDownEnabled" %dw% "0"
+call :reg "%pClass%" "PP_MCLKStutterModeThreshold" %dw% "4096"
+call :reg "%pClass%" "PP_ODNFeatureEnable" %dw% "1"
+call :reg "%pClass%" "PP_RTPMComputeF1Latency" %dw% "1"
+call :reg "%pClass%" "PP_SclkDeepSleepDisable" %dw% "1"
+call :reg "%pClass%" "PP_ThermalAutoThrottlingEnable" %dw% "0"
+call :reg "%pClass%" "StutterMode" %dw% "0"
+call :reg "%pClass%" "TVEnableOverscan" %dw% "0"
+call :reg "%pClass%" "WmAgpMaxIdleClk" %dw% "32"
 cls
 echo Successfully applied AMD tweaks
 pause
@@ -374,33 +374,49 @@ goto main
 :freeUpSpace
 
 :: Disable Reserved Storage
-echo %colorText%Disabling Reserved Storage...%colorReset%
-dism /Online /Set-ReservedStorageState /State:Disabled
+echo.
+echo %cText%Would you like to disable Reserved Storage?%cReset%
+choice /C 12 /N /M "[1] Yes or [2] No : "
+if %errorlevel%==1 (
+    echo %cText%Disabling Reserved Storage...%cReset%
+    dism /Online /Set-ReservedStorageState /State:Disabled
+)
 
 :: Cleanup WinSxS
-echo %colorText%Cleaning up WinSxS...%colorReset%
-dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
+echo.
+echo %cText%Would you like to clean up WinSxS?%cReset%
+choice /C 12 /N /M "[1] Yes or [2] No : "
+if %errorlevel%==1 (
+    echo %cText%Cleaning up WinSxS...%cReset%
+    dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
+)
 
 :: Remove Virtual Memory
 echo.
-echo %colorText%Would you like to remove Virtual Memory (pagefile.sys)?%colorReset%
+echo %cText%Would you like to remove Virtual Memory (pagefile.sys)?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
-if not errorlevel 1 (
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name 'PagingFiles' -Value ''
+if %errorlevel%==1 (
+    echo %cText%Removing Virtual Memory...%cReset%
+    powershell -Command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name 'PagingFiles' -Value ''"
 )
 
 :: Clear Windows Update Folder
-echo %colorText%Clearing Windows Update Folder...%colorReset%
-net stop wuauserv
-rd /s /q %systemdrive%\Windows\SoftwareDistribution
-md %systemdrive%\Windows\SoftwareDistribution
+echo.
+echo %cText%Would you like to clear the Windows Update Folder?%cReset%
+choice /C 12 /N /M "[1] Yes or [2] No : "
+if %errorlevel%==1 (
+    echo %cText%Clearing Windows Update Folder...%cReset%
+    net stop wuauserv
+    rd /s /q %systemdrive%\Windows\SoftwareDistribution
+    md %systemdrive%\Windows\SoftwareDistribution
+)
 
 :: Advanced disk cleaner
 echo.
-echo %colorText%Would you like to run the advanced disk cleaner?%colorReset%
+echo %cText%Would you like to run the advanced disk cleaner?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
-if not errorlevel 1 (
-    echo %colorText%Running advanced disk cleaner...%colorReset%
+if %errorlevel%==1 (
+    echo %cText%Running advanced disk cleaner...%cReset%
     cleanmgr /sagerun:65535
 )
 
@@ -414,15 +430,15 @@ goto main
 :launchPrivacySexy
 cls
 start "" "https://privacy.sexy/"
-echo %colorText%Recommended to set a Standard option if you are not sure what to do%colorReset%
-echo %colorText%and also dont forget to download revert version for your selected tweaks if anything can go wrong%colorReset%
+echo %cText%Recommended to set a Standard option if you are not sure what to do%cReset%
+echo %cText%and also dont forget to download revert version for your selected tweaks if anything can go wrong%cReset%
 goto main
 
 :reg
 set "key=%~1"
 set "valueName=%~2"
-set "value=%~3"
-set "type=%~4"
+set "type=%~3"
+set "value=%~4"
 if "%type%"=="" set "type=REG_SZ"
 reg.exe add "%key%" /v "%valueName%" /t "%type%" /d "%value%" /f
 if errorlevel 1 (
