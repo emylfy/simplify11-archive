@@ -3,24 +3,23 @@ setlocal EnableDelayedExpansion
 net session >nul 2>&1 || (powershell start -verb runas '%~0' & exit)
 set "dw=REG_DWORD"
 title Simplify11
+@REM mode con: cols=75 lines=25
 
-:: Catppuccin colors
+:: Define colors
 set "cRosewater=[38;5;224m"
 set "cFlamingo=[38;5;210m"
 set "cPink=[38;5;212m"
 set "cMauve=[38;5;141m"
 set "cRed=[38;5;203m"
 set "cMaroon=[38;5;167m"
-set "cPeach=[38;5;209m"
-set "cYellow=[38;5;229m"
 set "cGreen=[38;5;120m"
 set "cTeal=[38;5;116m"
 set "cSky=[38;5;111m"
 set "cSapphire=[38;5;69m"
 set "cBlue=[38;5;75m"
-set "cLavender=[38;5;183m"
-set "cText=[38;5;250m"
+set "cGrey=[38;5;250m"
 set "cReset=[0m"
+
 
 cls
 echo.
@@ -32,20 +31,21 @@ echo.
 echo %cFlamingo%   I tried as hard as possible to make the script universal for everyone!%cReset%
 echo.
 echo.
-set /p=%cText%Press any key to continue...%cReset%
+set /p=%cGrey%Press any key to continue...%cReset%
 
 :main
 cls
 echo.
-echo %cMauve% ──────────────────────────────────────────────────────────%cReset%
-echo %cMauve% │%cMauve% Simplify your setup with Essential Tweaks and Scripts  %cMauve%│%cReset%
-echo %cMauve% ──────────────────────────────────────────────────────────%cReset%
-echo %cMauve% │%cText% [1] Apply Performance Tweaks                           %cMauve%│%cReset%
-echo %cMauve% │%cText% [2] Free Up Space                                      %cMauve%│%cReset%
-echo %cMauve% │%cText% [3] Launch WinUtil - Install Programs and Tweaks       %cMauve%│%cReset%
-echo %cMauve% │%cText% [4] Privacy.Sexy - Create a personal batch in clicks   %cMauve%│%cReset%
-echo %cMauve% │%cText% [5] Exit                                               %cMauve%│%cReset%
-echo %cMauve% ──────────────────────────────────────────────────────────%cReset%
+echo %cMauve% +--------------------------------------------------------+%cReset%
+echo %cMauve% '%cMauve% Simplify your setup with Essential Tweaks and Scripts  %cMauve%'%cReset%
+echo %cMauve% +--------------------------------------------------------+%cReset%
+echo %cMauve% '%cGrey% [1] Apply Performance Tweaks                           %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [2] Free Up Space                                      %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [3] WinUtil - Install Programs, Tweaks and Fixes       %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [4] Privacy.Sexy - Tool to enforce privacy in clicks   %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [5] Winget - Install programs without browser          %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [6] Exit                                               %cMauve%'%cReset%
+echo %cMauve% +--------------------------------------------------------+%cReset%
 choice /C 123456 /N /M "%cSapphire%>%cReset%"
 goto %errorlevel%
 
@@ -67,26 +67,32 @@ call :launchPrivacySexy
 
 :5
 cls
+echo Please wait before winget will get updated..
+winget install winget
+call :wingetInstall
+
+:6
+cls
 exit
 
 :restoreSuggestion
-echo %cText%Checking for existing 'Pre-Script Restore Point'...%cReset%
+echo %cGrey%Checking for existing 'Pre-Script Restore Point'...%cReset%
 for /f "usebackq delims=" %%i in (`powershell -Command "Get-ComputerRestorePoint | Where-Object { $_.Description -eq 'Pre-Script Restore Point' } | Measure-Object -Property Description | Select-Object -ExpandProperty Count"`) do (
     if %%i gtr 0 (
-        echo %cYellow%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%cReset%
+        echo %cGrey%A 'Pre-Script Restore Point' already exists. Skipping restore point creation.%cReset%
         goto applyTweaks
     )
 )
 
-echo %cText%Would you like to create a system restore point before proceeding?%cReset%
+echo %cGrey%Would you like to create a system restore point before proceeding?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if %errorlevel%==2 goto applyTweaks
 
-echo %cText%Creating system restore point...%cReset%
+echo %cGrey%Creating system restore point...%cReset%
 reg.exe add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "SystemRestorePointCreationFrequency" /t %dw% /d "0" /f
 powershell -Command "Checkpoint-Computer -Description 'Pre-Script Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
 if %errorlevel%==0 (
-    echo %cText%Restore point created successfully.%cReset%
+    echo %cGrey%Restore point created successfully.%cReset%
 ) else (
     echo %cRed%Failed to create restore point. Please check your system settings and try again.%cReset%
 )
@@ -108,7 +114,8 @@ set "pNvlddmkm=HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm"
 set "pFTS=HKLM\SOFTWARE\NVIDIA Corporation\Global\FTS"
 set "pClass=HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
 
-cls
+:: Set ANSI, OEM and MAC Code Page to UTF-8
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Nls\CodePage" /v ACP /t REG_SZ /d 65001 /f
 
 :: Mouse & Keyboard Tweaks
 call :reg "%pMouse%" "MouseSpeed" "0"
@@ -286,7 +293,6 @@ call :reg "%pNvlddmkm%\Global\NVTweak" "RmGpsPsEnablePerCpuCoreDpc" %dw% "1"
 call :reg "%pNvlddmkm%\Global\Startup" "SendTelemetryData" %dw% "0"
 call :reg "%pNvlddmkm%\NVAPI" "RmGpsPsEnablePerCpuCoreDpc" %dw% "1"
 call :reg "%pNvlddmkm%\Parameters" "ThreadPriority" %dw% "31"
-call :reg "HKLM\SYSTEM\CurrentControlSet\services\NvTelemetryContainer" "Start" %dw% "4"
 call :reg "%pClass%" "D3PCLatency" %dw% "1"
 call :reg "%pClass%" "F1TransitionLatency" %dw% "1"
 call :reg "%pClass%" "LOWLATENCY" %dw% "1"
@@ -313,7 +319,6 @@ pause
 goto main
 
 :amd
-:: source - https://www.youtube.com/watch?v=nuUV2RoPOWc&t=160s
 call :reg "%pClass%" "AllowRSOverlay" "false" REG_SZ
 call :reg "%pClass%" "AllowSkins" "false" REG_SZ
 call :reg "%pClass%" "AllowSnapshot" %dw% "0"
@@ -375,37 +380,37 @@ goto main
 
 :: Disable Reserved Storage
 echo.
-echo %cText%Would you like to disable Reserved Storage?%cReset%
+echo %cGrey%Would you like to disable Reserved Storage?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if %errorlevel%==1 (
-    echo %cText%Disabling Reserved Storage...%cReset%
+    echo %cGrey%Disabling Reserved Storage...%cReset%
     dism /Online /Set-ReservedStorageState /State:Disabled
 )
 
 :: Cleanup WinSxS
 echo.
-echo %cText%Would you like to clean up WinSxS?%cReset%
+echo %cGrey%Would you like to clean up WinSxS?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if %errorlevel%==1 (
-    echo %cText%Cleaning up WinSxS...%cReset%
+    echo %cGrey%Cleaning up WinSxS...%cReset%
     dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase /RestoreHealth
 )
 
 :: Remove Virtual Memory
 echo.
-echo %cText%Would you like to remove Virtual Memory (pagefile.sys)?%cReset%
+echo %cGrey%Would you like to remove Virtual Memory (pagefile.sys)?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if %errorlevel%==1 (
-    echo %cText%Removing Virtual Memory...%cReset%
+    echo %cGrey%Removing Virtual Memory...%cReset%
     powershell -Command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name 'PagingFiles' -Value ''"
 )
 
 :: Clear Windows Update Folder
 echo.
-echo %cText%Would you like to clear the Windows Update Folder?%cReset%
+echo %cGrey%Would you like to clear the Windows Update Folder?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if %errorlevel%==1 (
-    echo %cText%Clearing Windows Update Folder...%cReset%
+    echo %cGrey%Clearing Windows Update Folder...%cReset%
     net stop wuauserv
     rd /s /q %systemdrive%\Windows\SoftwareDistribution
     md %systemdrive%\Windows\SoftwareDistribution
@@ -413,11 +418,11 @@ if %errorlevel%==1 (
 
 :: Advanced disk cleaner
 echo.
-echo %cText%Would you like to run the advanced disk cleaner?%cReset%
+echo %cGrey%Would you like to run the advanced disk cleaner?%cReset%
 choice /C 12 /N /M "[1] Yes or [2] No : "
 if %errorlevel%==1 (
-    echo %cText%Running advanced disk cleaner...%cReset%
-    cleanmgr /sagerun:65535
+    echo %cGrey%Running advanced disk cleaner...%cReset%
+    cleanmgr /sageset:65535 /sagerun:65535
 )
 
 goto main
@@ -430,9 +435,82 @@ goto main
 :launchPrivacySexy
 cls
 start "" "https://privacy.sexy/"
-echo %cText%Recommended to set a Standard option if you are not sure what to do%cReset%
-echo %cText%and also dont forget to download revert version for your selected tweaks if anything can go wrong%cReset%
+echo %cGrey%Recommended to set a Standard option if you are not sure what to do%cReset%
+echo %cGrey%and also dont forget to download revert version for your selected tweaks if anything can go wrong%cReset%
 goto main
+
+:wingetInstall
+cls
+echo %cMauve% --------------------------------------------------------%cReset%
+echo %cMauve% '%cGreen% Browsers:                                             %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [1] Arc                  [2] Zen                      %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [3] Thorium              [4] Yandex                   %cMauve%'%cReset%
+echo.
+echo %cMauve% '%cGreen% Social Media:                                         %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [5] AyuGram              [6] Vesktop                  %cMauve%'%cReset%
+echo.
+echo %cMauve% '%cGreen% Utilities:                                            %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [7] UniGetUI             [8] NanaZip                  %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [9]                      [10] NVIDIA Broadcast        %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [11] NVCleanstall                                     %cMauve%'%cReset%
+echo.
+echo %cMauve% '%cGreen% Productivity:                                         %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [12] ChatGPT             [13] Todoist                 %cMauve%'%cReset%
+echo.
+echo %cMauve% '%cGreen% Games:                                                %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [14] Steam                                            %cMauve%'%cReset%
+echo.
+echo %cMauve% '%cGreen% Coding:                                               %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [15] Python              [16] Cursor                  %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [17] Node.js             [18] Visual Studio Code      %cMauve%'%cReset%
+echo.
+echo %cMauve% '%cGrey% [19] Exit                                             %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [20] Search and Install a Package                     %cMauve%'%cReset%
+echo %cMauve% --------------------------------------------------------%cReset%
+set /p choice="%cSapphire%Select an application to install: %cReset%"
+
+set /a isValid=0
+for /l %%i in (1,1,20) do (
+    if "%choice%"=="%%i" set /a isValid=1
+)
+if %isValid%==0 (
+    goto wingetInstall
+)
+
+if "!choice!"=="1"  (winget install TheBrowserCompany.Arc)
+if "!choice!"=="2"  (winget install Zen-Team.Zen-Browser)
+if "!choice!"=="3"  (winget install Thorium)
+if "!choice!"=="4"  (winget install Yandex.Browser)
+if "!choice!"=="5"  (winget install RadolynLabs.AyuGramDesktop)
+if "!choice!"=="6"  (winget install Vencord.Vesktop)
+if "!choice!"=="7"  (winget install MartiCliment.UniGetUI)
+if "!choice!"=="8"  (winget install M2Team.NanaZip)
+if "!choice!"=="10" (winget install NVIDIA.Broadcast)
+if "!choice!"=="11" (winget install NVCleanstall)
+if "!choice!"=="12" (winget install lencx.ChatGPT)
+if "!choice!"=="13" (winget install Doist.Todoist)
+if "!choice!"=="14" (winget install Valve.Steam)
+if "!choice!"=="15" (winget install Python)
+if "!choice!"=="16" (winget install Anysphere.Cursor)
+if "!choice!"=="17" (winget install OpenJS.NodeJS)
+if "!choice!"=="18" (winget install Microsoft.VisualStudioCode)
+if "!choice!"=="19" (goto main)
+if "!choice!"=="20" (
+    cls
+    echo Name of the program? (or type exit)
+    set /p name=""
+    if /i "%name%"=="exit" goto wingetInstall
+    winget search "%name%"
+    echo.
+    echo Enter the exact ID of the package to install:
+    set /p packageId=""
+    if not "%packageId%"=="" (
+        winget install "%packageId%"
+    )
+    goto wingetInstall
+)
+
+goto wingetInstall
 
 :reg
 set "key=%~1"
