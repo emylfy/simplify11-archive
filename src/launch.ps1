@@ -1,1 +1,0 @@
-irm 'https://raw.githubusercontent.com/emylfy/simplify11/refs/heads/main/simplify11.bat' -outfile "$env:TEMP\simplify11.bat"; & "$env:TEMP\simplify11.bat"
