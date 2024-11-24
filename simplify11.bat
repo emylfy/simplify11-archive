@@ -75,7 +75,7 @@ if "%hasRestorePoint%"=="1" (
 )
 echo %cMauve% '%cGrey% [1] Apply Performance Tweaks                           %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [2] Free Up Space                                      %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [3] WinUtil - Install Programs, Tweaks ^& Fixes          %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [3] WinUtil - Install Programs, Tweaks ^& Fixes         %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [4] Privacy.Sexy - Tool to enforce privacy in clicks   %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [5] Winget - Install programs without browser          %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [6] Check other cool stuff                             %cMauve%'%cReset%
@@ -592,8 +592,6 @@ for /f "tokens=* delims=" %%n in ('type "%temp%\choices.txt"') do (
 :: Clean up temporary file
 del "%temp%\choices.txt" 2>nul
 
-:: After all installations are complete
-echo %cGreen%All selected programs have been processed.%cReset%
 pause
 goto wingetInstall
 
