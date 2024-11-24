@@ -68,14 +68,14 @@ title Simplify11
 cls
 echo.
 echo %cMauve% +--------------------------------------------------------+%cReset%
-echo %cMauve% '%cMauve% Simplify your setup with Essential Tweaks ^& Scripts    %cMauve%'%cReset%
+echo %cMauve% '%cMauve% Simpler way to setup your system with Tweaks ^& Scripts %cMauve%'%cReset%
 echo %cMauve% +--------------------------------------------------------+%cReset%
 if "%hasRestorePoint%"=="1" (
     echo %cMauve% '%cGrey% [0] Use Existing Restore Point                         %cMauve%'%cReset%
 )
 echo %cMauve% '%cGrey% [1] Apply Performance Tweaks                           %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [2] Free Up Space                                      %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [3] WinUtil - Install Programs, Tweaks ^& Fixes         %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [3] WinUtil - Install Programs, Tweaks ^& Fixes          %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [4] Privacy.Sexy - Tool to enforce privacy in clicks   %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [5] Winget - Install programs without browser          %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [6] Check other cool stuff                             %cMauve%'%cReset%
@@ -494,7 +494,7 @@ pause
 goto main
 
 :wingetInstall
-title Simplyfy11: Install apps
+title Simplify11: Install apps
 cls
 :: Define packages for winget installation
 set "packages[1]=Microsoft.VisualStudioCode"
