@@ -68,14 +68,14 @@ title Simplify11
 cls
 echo.
 echo %cMauve% +--------------------------------------------------------+%cReset%
-echo %cMauve% '%cMauve% Simplify your setup with Essential Tweaks ^& Scripts  %cMauve%'%cReset%
+echo %cMauve% '%cMauve% Simplify your setup with Essential Tweaks ^& Scripts    %cMauve%'%cReset%
 echo %cMauve% +--------------------------------------------------------+%cReset%
 if "%hasRestorePoint%"=="1" (
-    echo %cMauve% '%cGrey% [0] Use Existing Restore Point                     %cMauve%'%cReset%
+    echo %cMauve% '%cGrey% [0] Use Existing Restore Point                         %cMauve%'%cReset%
 )
 echo %cMauve% '%cGrey% [1] Apply Performance Tweaks                           %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [2] Free Up Space                                      %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [3] WinUtil - Install Programs, Tweaks ^& Fixes        %cMauve%'%cReset%
+echo %cMauve% '%cGrey% [3] WinUtil - Install Programs, Tweaks ^& Fixes         %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [4] Privacy.Sexy - Tool to enforce privacy in clicks   %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [5] Winget - Install programs without browser          %cMauve%'%cReset%
 echo %cMauve% '%cGrey% [6] Check other cool stuff                             %cMauve%'%cReset%
@@ -522,62 +522,79 @@ set "packages[22]=Valve.Steam"
 set "packages[23]=EpicGames.EpicGamesLauncher"
 
 echo %cMauve% +--------------------------------------------------------+%cReset%
-echo %cMauve% '%cGreen% [0] Search for any program                             %cMauve%'%cReset%
+echo %cMauve%  %cGreen%[0] Search for any program                              %cMauve% %cReset%
 echo.
-echo %cMauve% '%cGreen% Development Tools:                                      %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [1] Visual Studio Code   [2] Python                   %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [3] Node.js             [4] Cursor                    %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [5] Git                 [6] GitHub Desktop            %cMauve%'%cReset%
+echo %cMauve%  %cGreen%Development Tools:                                      %cMauve% %cReset%
+echo %cMauve%  %cGrey%[1] Visual Studio Code   [2] Python                    %cMauve% %cReset%
+echo %cMauve%  %cGrey%[3] Node.js             [4] Cursor                     %cMauve% %cReset%
+echo %cMauve%  %cGrey%[5] Git                 [6] GitHub Desktop             %cMauve% %cReset%
 echo.
-echo %cMauve% '%cGreen% Browsers:                                              %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [7] Arc                 [8] Thorium                   %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [9] Zen                 [10] Yandex                   %cMauve%'%cReset%
+echo %cMauve%  %cGreen%Browsers:                                              %cMauve% %cReset%
+echo %cMauve%  %cGrey%[7] Arc                 [8] Thorium                    %cMauve% %cReset%
+echo %cMauve%  %cGrey%[9] Zen                 [10] Yandex                    %cMauve% %cReset%
 echo.
-echo %cMauve% '%cGreen% Utilities:                                             %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [11] PowerToys          [12] NanaZip                  %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [13] Motrix             [14] UniGetUI                 %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [15] NVCleanstall       [16] NVIDIA Broadcast        %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [17] PC Manager                                       %cMauve%'%cReset%
+echo %cMauve%  %cGreen%Utilities:                                             %cMauve% %cReset%
+echo %cMauve%  %cGrey%[11] PowerToys          [12] NanaZip                   %cMauve% %cReset%
+echo %cMauve%  %cGrey%[13] Motrix             [14] UniGetUI                  %cMauve% %cReset%
+echo %cMauve%  %cGrey%[15] NVCleanstall       [16] NVIDIA Broadcast         %cMauve% %cReset%
+echo %cMauve%  %cGrey%[17] PC Manager                                        %cMauve% %cReset%
 echo.
-echo %cMauve% '%cGreen% Social ^& Productivity:                                 %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [18] AyuGram            [19] Vesktop                  %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [20] ChatGPT            [21] Todoist                  %cMauve%'%cReset%
+echo %cMauve%  %cGreen%Social ^& Productivity:                                 %cMauve% %cReset%
+echo %cMauve%  %cGrey%[18] AyuGram            [19] Vesktop                   %cMauve% %cReset%
+echo %cMauve%  %cGrey%[20] ChatGPT            [21] Todoist                   %cMauve% %cReset%
 echo.
-echo %cMauve% '%cGreen% Gaming:                                                %cMauve%'%cReset%
-echo %cMauve% '%cGrey% [22] Steam              [23] Epic Games Store         %cMauve%'%cReset%
+echo %cMauve%  %cGreen%Gaming:                                                %cMauve% %cReset%
+echo %cMauve%  %cGrey%[22] Steam              [23] Epic Games Store          %cMauve% %cReset%
 echo.
-echo %cMauve% '%cGrey% [24] Back to Main Menu                                %cMauve%'%cReset%
+echo %cMauve%  %cGrey%[24] Back to Main Menu                                 %cMauve% %cReset%
 echo %cMauve% +--------------------------------------------------------+%cReset%
 
 set /p choice="%cSapphire%Enter your choices (space-separated numbers, e.g., '1 2'): %cReset%"
 
-:: Process each number in the input
-for %%a in (%choice%) do (
-    if "%%a"=="0" (
-        goto searchProgram
-    ) else if "%%a"=="24" (
-        goto main
-    ) else (
-        :: Check if it's a valid number between 1 and 23
-        set /a "num=%%a" 2>nul
-        if !num! geq 1 if !num! leq 23 (
-            if defined packages[%%a] (
-                call :installPackage "!packages[%%a]!"
+:: Create a temporary file to store the choices
+echo %choice% > "%temp%\choices.txt"
+
+:: Process each number in the input sequentially
+for /f "tokens=* delims=" %%n in ('type "%temp%\choices.txt"') do (
+    for %%a in (%%n) do (
+        if "%%a"=="0" (
+            del "%temp%\choices.txt" 2>nul
+            goto searchProgram
+        ) else if "%%a"=="24" (
+            del "%temp%\choices.txt" 2>nul
+            goto main
+        ) else (
+            :: Check if it's a valid number between 1 and 23
+            set /a "num=%%a" 2>nul
+            if !num! geq 1 if !num! leq 23 (
+                if defined packages[%%a] (
+                    echo.
+                    echo %cGrey%Installing !packages[%%a]!...%cReset%
+                    winget install --id !packages[%%a]! --accept-package-agreements --accept-source-agreements
+                    if !errorlevel! equ 0 (
+                        echo %cGreen%Successfully installed !packages[%%a]!%cReset%
+                    ) else (
+                        echo %cRed%Failed to install !packages[%%a]!. Error code: !errorlevel!%cReset%
+                        pause
+                    )
+                ) else (
+                    echo %cRed%No package defined for choice %%a%cReset%
+                    timeout /t 2 >nul
+                )
             ) else (
-                echo %cRed%No package defined for choice %%a%cReset%
+                echo %cRed%Invalid choice: %%a%cReset%
                 timeout /t 2 >nul
             )
-        ) else (
-            echo %cRed%Invalid choice: %%a%cReset%
-            timeout /t 2 >nul
         )
     )
 )
 
+:: Clean up temporary file
+del "%temp%\choices.txt" 2>nul
+
 :: After all installations are complete
-echo.
 echo %cGreen%All selected programs have been processed.%cReset%
-timeout /t 2 >nul
+pause
 goto wingetInstall
 
 :searchProgram
